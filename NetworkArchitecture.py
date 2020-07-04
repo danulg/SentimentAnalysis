@@ -1,7 +1,7 @@
 from tensorflow.keras.layers import LSTM, Dense, Conv1D, Softmax, Flatten, Input
 from tensorflow.keras import Sequential
 
-class discrimintor(Sequential):
+class discrimintor_gan(Sequential):
     def __int__(self):
         self.__int__(super)
         self.layer0 = self.add(Input)
@@ -11,7 +11,7 @@ class discrimintor(Sequential):
         self.layer4 = self.add(Dense)
         self.layer5 = self.add(Softmax)
 
-class generator(Sequential):
+class generator_gan(Sequential):
     def __int__(self):
         self.__int__(super)
         self.layer0 = self.add(Input)
@@ -21,3 +21,10 @@ class generator(Sequential):
         self.layer4 = self.add(Dense)
         self.layer5 = self.add(Softmax)
 
+class sentiment_analysis(Sequential):
+    def __int__(self):
+        self.__int__(super)
+
+class sentiment_analysis_pretrained(Sequential):
+    def __int__(self):
+        self.__int__(super)
