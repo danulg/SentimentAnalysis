@@ -1,8 +1,10 @@
 import re
 import random
 import os, shutil
+from collections import Counter
 from tensorflow import keras as keras
 import dill
+import pprint
 
 class IMDBDataSet():
     def __init__(self):
@@ -10,6 +12,13 @@ class IMDBDataSet():
         self.amazing_sub = {'amazing', 'awesome', 'stunning', 'astounding'}
         self.amazingly_sub = {'amazingly', 'stunningly', 'astoundlingly'}
         self.love_sub = {'love', 'adore'}
+        self.great_sub = {'great', 'really nice'}
+        self.common_words = {'a', 'are', 'you', 'have', 'by', 'an', 'one', 'is', 'the', 'I', 'and', 'in','of',\
+                             'to', 'that', 'it', 'this', '/><br', 'as', 'has', 'about', 'very', 'they', 'or'\
+                             'with', 'was', 'for', 'The', 'but', 'his', 'her', 'on', 'film', 'movie', 'be', 'by'\
+                             'an', 'at', 'who', 'from', 'all', 'had', 'up', 'story', 'will', 'would', 'my', 'if',\
+                             'only', 'see', 'can', 'it\'s', 'he', 'she', 'which', 'their', 'when', 'so', 'or', 'out'\
+                             'some', 'just', 'this'}
         self.imdb_dir = '/home/danul-g/IMDB'
         self.unlabled_dir = os.path.join(self.imdb_dir, 'unsup')
 
@@ -28,11 +37,18 @@ class IMDBDataSet():
     def random_augmented_review(self):
         pass
 
-    def data_explorer(self):
-        pass
+    def word_usage_analysis(self, label=1, num='35'):
+        text, labels = self.load_original_test()
+        word_counter = Counter()
+        for z in zip(text, labels):
+            if z[1] == label or z[1]==2:
+                for _ in z[0].split():
+                    if _ not in self.common_words:
+                        word_counter[_]+=1
 
-    def token_analysis(self):
-        pass
+        print(word_counter.most_common(num))
+        #Add data for tokenizers? Can we use bokeh and scipy to get a nicer look at the data?
+
 
     def labled_to_pickle(self, val='train'):
         labels = []
@@ -74,5 +90,7 @@ if __name__ == "__main__":
     data = IMDBDataSet()
     #data.labled_to_pickle('train')
     #data.labled_to_pickle('test')
-    data.random_original_review()
+    #data.random_original_review()
+    data.word_usage_analysis(1, 40)
+
 
