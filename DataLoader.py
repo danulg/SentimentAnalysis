@@ -4,7 +4,6 @@ import os, shutil
 from collections import Counter
 from tensorflow import keras as keras
 import dill
-import pprint
 
 class IMDBDataSet():
     def __init__(self):
@@ -13,13 +12,17 @@ class IMDBDataSet():
         self.amazingly_sub = {'amazingly', 'stunningly', 'astoundlingly'}
         self.love_sub = {'love', 'adore'}
         self.great_sub = {'great', 'really nice'}
-        self.common_words = {'a', 'are', 'you', 'have', 'by', 'an', 'one', 'is', 'the', 'I', 'and', 'in','of',\
-                             'to', 'that', 'it', 'this', '/><br', 'as', 'has', 'about', 'very', 'they', 'or'\
-                             'with', 'was', 'for', 'The', 'but', 'his', 'her', 'on', 'film', 'movie', 'be', 'by'\
-                             'an', 'at', 'who', 'from', 'all', 'had', 'up', 'story', 'will', 'would', 'my', 'if',\
-                             'only', 'see', 'can', 'it\'s', 'he', 'she', 'which', 'their', 'when', 'so', 'or', 'out'\
-                             'some', 'just', 'this'}
-        self.imdb_dir = '/home/danulg/IMDB'
+        self.common = {'a', 'are', 'you', 'have', 'by', 'an', 'one', 'is', 'the', 'I', 'and', 'in', 'of',\
+                       'to', 'that', 'it', 'this', '/><br', 'as', 'has', 'about', 'very', 'they', 'or',\
+                       'with', 'was', 'for', 'The', 'but', 'his', 'her', 'on', 'film', 'movie', 'be', 'by',\
+                       'an', 'at', 'who', 'from', 'all', 'had', 'up', 'story', 'will', 'would', 'my', 'if',\
+                       'only', 'see', 'can', 'it\'s', 'he', 'she', 'which', 'their', 'when', 'so', 'or', 'out',\
+                       'some', 'just', 'this', 'out', 'This', 'It', '-', 'even', 'were', 'more', 'what', 'than',\
+                       'been', 'there', '<br', 'into', 'get', 'because', 'other', 'most', 'we', 'me', 'do',\
+                       'first', 'its', 'any', 'think', 'him', 'being', 'did', 'characters', 'It\'s', 'know', 'movie',\
+                       'does', 'watch', 'after', 'way', 'too', 'little', 'then', 'But', 'but', 'too', 'films', 'In',\
+                       'A', 'such', 'these', 'should', 'still', 'seen', 'it.', 'them', 'And'}
+        self.imdb_dir = '/home/danul-g/IMDB'
 
     #Data augmentation methods
     def data_augmentation(self):
@@ -47,16 +50,16 @@ class IMDBDataSet():
     def random_augmented_review(self):
         pass
     #Rough usage statistics: used to create lexicon for data augmentation
-    def word_usage_analysis(self, label=1, num='35'):
-        text, labels = self.load_original_train()
+    def word_usage(self, num='35'):
+        text, _ = self.load_original_train()
         word_counter = Counter()
-        for z in zip(text, labels):
-            if z[1] == label or z[1]==2:
-                for _ in z[0].split():
-                    if _ not in self.common_words:
-                        word_counter[_]+=1
-
-        print(word_counter.most_common(num))
+        for z in text:
+            for _ in z.split():
+                if _ not in self.common:
+                    word_counter[_]+=1
+        stats = word_counter.most_common(num)
+        for _ in stats:
+            print(_)
         #Add data for tokenizers?
         #Can we use bokeh and scipy to get a "nicer" look at the data?
 
@@ -123,6 +126,6 @@ if __name__ == "__main__":
 
     #data.random_unsup_review()
     # data.random_original_review()
-    # data.word_usage_analysis(1, 40)
+    data.word_usage(40)
 
 
