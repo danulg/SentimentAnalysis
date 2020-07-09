@@ -1,6 +1,6 @@
 import numpy as np
 import scipy
-from DataLoader import IMDBDataSet
+from dataloader import IMDBDataSet
 import sklearn
 
 
@@ -13,4 +13,4 @@ if __name__=="__main__":
     val_label = tr_dt[20000:]
 
 
-
+embedding_dim = 100

@@ -1,4 +1,4 @@
-from tensorflow.keras.layers import LSTM, Dense, Conv1D, Softmax, Flatten, Input
+from tensorflow.keras.layers import LSTM, Dense, Conv1D, Softmax, Flatten, Input, Embedding
 from tensorflow.keras import Sequential
 
 class discrimintor_gan(Sequential):
@@ -28,3 +28,10 @@ class sentiment_analysis(Sequential):
 class sentiment_analysis_pretrained(Sequential):
     def __int__(self):
         self.__int__(super)
+from keras.models import Sequential
+from keras.layers import Embedding, Flatten, Dense
+model = Sequential()
+model.add(Embedding(max_words, embedding_dim, input_length=maxlen))
+model.add(Flatten())
+model.add(Dense(32, activation='relu'))
+model.add(Dense(1, activation='sigmoid'))

@@ -18,3 +18,4 @@ print(logical[0])
 #GANs? If time permits!
 
 #Unsupervised: Ideas include running through half trained and adding and taking out high threshold data!
+embedding_dim = 100
