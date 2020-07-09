@@ -1,8 +1,7 @@
 import re
 import random
-import os, shutil
-from collections import Counter
-from tensorflow import keras as keras
+import os
+import numpy as np
 import dill
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
@@ -27,15 +26,14 @@ class IMDBDataSet():
         print(name, len(text))
         i = 0
 
-        if name=='unsup':
-            labels=['unlabled']*10
-
         while(i<10):
             j = random.randint(0, len(text) - 1)
-            print(text[j], ':' ,labels[j])
-            i+=1
-
-
+            if name == 'unsup_text.pkd':
+                print(text[j], ': unlabled')
+                i+=1
+            else:
+                print(text[j], ':', labels[j])
+                i+=1
 
     #Data to more convinient form
     def labled_to_pickle(self, val='train'):
@@ -49,7 +47,8 @@ class IMDBDataSet():
                     _ = f.read()
                     _ = re.sub(r'\<br', '', _)
                     _ = re.sub(r'\/br\>', '', _)
-                    _ = re.sub(r'\\\>', '', _)
+                    _ = re.sub(r'\/\>', '', _)
+                    _ = re.sub(r'[,.()?\']', '', _)
                     _.strip()
                     text.append(_)
                 if label_type == 'neg':
@@ -71,6 +70,7 @@ class IMDBDataSet():
                 _ = re.sub(r'\<br', '', _)
                 _ = re.sub(r'\/br\>', '', _)
                 _ = re.sub(r'\/\>', '', _)
+                _ = re.sub(r'[,.()?\']', '', _)
                 _.strip()
                 text.append(_)
         print(type(text), len(text))
@@ -83,24 +83,46 @@ class IMDBDataSet():
         with open(data, 'rb') as f:
             text = dill.load(f)
 
-        if name == 'train' or name == 'test':
+        if name == 'train' or name == 'test' or name == 'augmented':
             with open(lbl, 'rb') as f:
                 labels = dill.load(f)
             if is_numpy:
-                text = self.__data_to_numpy(text, maxlen, max_words)
-                return text, labels
+                text, labels, word_index = self.__data_to_numpy(text, labels, maxlen, max_words)
+                return text, labels, word_index
             else:
                 return text, labels
 
-        if name == 'unsup':
+        else:
             if is_numpy:
-                text = self.__data_to_numpy(text, maxlen, max_words)
-                return text, []
+                text, labels, word_index = self.__data_to_numpy(text, [],  maxlen, max_words)
+                return text, labels, word_index
             else:
                 return text, []
 
-    def __data_to_numpy(self, data, maxlen=100, max_words=10000):
-        pass
+    def __data_to_numpy(self, text, labels, maxlen=100, max_words=10000):
+        #tokenize the text data
+        tokenizer = Tokenizer(num_words=max_words)
+        tokenizer.fit_on_texts(text)
+        sequences = tokenizer.texts_to_sequences(text)
+        word_index = tokenizer.word_index
+        print('Found %s unique tokens.' % len(word_index))
+
+        #Convert to numpy
+        data = pad_sequences(sequences, maxlen=maxlen)
+        print('Shape of data tensor:', data.shape)
+
+        if labels != []:
+            labels = np.asarray(labels)
+            print('Shape of label tensor:', labels.shape)
+            indices = np.arange(data.shape[0])
+            np.random.shuffle(indices)
+            data = data[indices]
+            labels = labels[indices]
+            return data, labels, word_index
+
+        else:
+            return data, labels, word_index
+
 
 if __name__ == "__main__":
     data = IMDBDataSet()
@@ -110,37 +132,4 @@ if __name__ == "__main__":
     #data.labled_to_pickle(val='test')
     #data.unlabled_to_pickle()
 
-    data.random_review(name='train')
-    data.random_review(name='unsup')
-
-    # data.random_original_review()
-    #data.word_usage(40)
-
-''' #Rough usage statistics: used to create lexicon for data augmentation
-    self.common = {'a', 'are', 'you', 'have', 'by', 'an', 'one', 'is', 'the', 'I', 'and', 'in', 'of',\
-                       'to', 'that', 'it', 'this', '/><br', 'as', 'has', 'about', 'very', 'they', 'or',\
-                       'with', 'was', 'for', 'The', 'but', 'his', 'her', 'on', 'film', 'movie', 'be', 'by',\
-                       'an', 'at', 'who', 'from', 'all', 'had', 'up', 'story', 'will', 'would', 'my', 'if',\
-                       'only', 'see', 'can', 'it\'s', 'he', 'she', 'which', 'their', 'when', 'so', 'or', 'out',\
-                       'some', 'just', 'this', 'out', 'This', 'It', '-', 'even', 'were', 'more', 'what', 'than',\
-                       'been', 'there', '<br', 'into', 'get', 'because', 'other', 'most', 'we', 'me', 'do',\
-                       'first', 'its', 'any', 'think', 'him', 'being', 'did', 'characters', 'It\'s', 'know', 'movie',\
-                       'does', 'watch', 'after', 'way', 'too', 'little', 'then', 'But', 'but', 'too', 'films', 'In',\
-                       'A', 'such', 'these', 'should', 'still', 'seen', 'it.', 'them', 'And'}
-    
-    
-    def word_usage(self, num='35'):
-        text, _ = self.load_original_train()
-        word_counter = Counter()
-        for z in text:
-            for _ in z.split():
-                if _ not in self.common:
-                    word_counter[_]+=1
-        stats = word_counter.most_common(num)
-        for _ in stats:
-            print(_)
-        #Add data for tokenizers?
-        #Can we use bokeh and scipy to get a "nicer" look at the data?        
-        '''
-
-
+    data.load_data()
