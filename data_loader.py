@@ -13,10 +13,11 @@ class IMDBDataSet():
         self.amazingly_sub = {'amazingly', 'stunningly', 'astoundlingly'}
         self.love_sub = {'love', 'adore'}
         self.great_sub = {'great', 'really nice'}
-        self.imdb_dir = '/home/danul-g/IMDB'
+        self.imdb_dir = '/home/danulg/IMDB'
 
     #Data augmentation methods
     def data_augmentation(self):
+        #To be added
         pass
 
     #Methods for looking at random data
@@ -83,30 +84,26 @@ class IMDBDataSet():
         with open(data, 'rb') as f:
             text = dill.load(f)
 
+        sequences, word_index = self.__tokenize(text, max_words)
+
         if name == 'train' or name == 'test' or name == 'augmented':
             with open(lbl, 'rb') as f:
                 labels = dill.load(f)
+
             if is_numpy:
-                text, labels, word_index = self.__data_to_numpy(text, labels, maxlen, max_words)
-                return text, labels, word_index
+                data, labels = self.__data_to_numpy(sequences, labels, maxlen)
+                return data, labels, word_index
             else:
-                return text, labels
+                return text, labels, word_index
 
         else:
             if is_numpy:
-                text, labels, word_index = self.__data_to_numpy(text, [],  maxlen, max_words)
-                return text, labels, word_index
+                data, labels = self.__data_to_numpy(sequences, [],  maxlen)
+                return data, labels, word_index
             else:
-                return text, []
+                return text, [], word_index
 
-    def __data_to_numpy(self, text, labels, maxlen=100, max_words=10000):
-        #tokenize the text data
-        tokenizer = Tokenizer(num_words=max_words)
-        tokenizer.fit_on_texts(text)
-        sequences = tokenizer.texts_to_sequences(text)
-        word_index = tokenizer.word_index
-        print('Found %s unique tokens.' % len(word_index))
-
+    def __data_to_numpy(self, sequences, labels, word_index, maxlen=100):
         #Convert to numpy
         data = pad_sequences(sequences, maxlen=maxlen)
         print('Shape of data tensor:', data.shape)
@@ -118,18 +115,42 @@ class IMDBDataSet():
             np.random.shuffle(indices)
             data = data[indices]
             labels = labels[indices]
-            return data, labels, word_index
+            return data, labels
 
         else:
             return data, labels, word_index
 
+    def __tokenize(self, text, max_words=10000):
+        # tokenize the text data
+        tokenizer = Tokenizer(num_words=max_words)
+        tokenizer.fit_on_texts(text)
+        sequences = tokenizer.texts_to_sequences(text)
+        word_index = tokenizer.word_index
+        print('Found %s unique tokens.' % len(word_index))
+        return sequences, word_index
 
 if __name__ == "__main__":
     data = IMDBDataSet()
 
     #Run once to create files and comment out
-    #data.labled_to_pickle(val='train')
-    #data.labled_to_pickle(val='test')
-    #data.unlabled_to_pickle()
+    # data.labled_to_pickle(val='train')
+    # data.labled_to_pickle(val='test')
+    # data.unlabled_to_pickle()
 
-    data.load_data()
+
+    #Code to check some of the methods
+    d, l, w = data.load_data()
+    w = list(w.items())
+    i = 0
+    while(i<5):
+        print(d[i], 'label is', l[i])
+        print('word', w[i])
+        i+=1
+
+    d, l, w = data.load_data(is_numpy=False)
+    w = list(w.items())
+    i = 0
+    while (i < 5):
+        print(d[i], 'label is', l[i])
+        print('word', w[i])
+        i += 1

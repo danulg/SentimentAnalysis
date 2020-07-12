@@ -1,6 +1,6 @@
 import numpy as np
 import scipy
-from dataloader import IMDBDataSet
+from data_loader import IMDBDataSet
 import sklearn
 
 
