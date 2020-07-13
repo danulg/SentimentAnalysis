@@ -25,12 +25,39 @@ max_words = max_words #i.e. the parameters for glove and data loader should matc
 
 
 #Unsupervised: Ideas include running through half trained and adding and taking out high threshold data!
-#Model 1: On the 25000 smaples
+#Note down times for training. Repeat on basic / advanced models
 
-#Model 2: Clustering with glove6B to add additional models
+#Model 1: On the 25000 smaples - Basic
 
-#Model 3: Transfer learning with Glove but no interaction with GloVe: Compare 25000 with 2000?
+#Model 2: Transfer learning with Glove but no interaction with cluseteing or unsupervised set: all examples 25000  - Basic
 
-#Model 4: Train in cycles to add / remove examples with high probability
+#Model 3:  Transfer learning with Glove but no interaction with cluseteing or unsupervised set: with a fraction of the original data- Basic
 
-#Draw images using bokeh on train / test accuracies
+#Model 4: Clustering with glove6B to add additional examples - Basic
+
+#Model 5: Train in cycles to add / remove examples with high probability - Basic
+
+#Model 6: On the 25000 smaples - Advanced
+
+#Model 7: Transfer learning with Glove but no interaction with cluseteing or unsupervised set: all examples 25000  - Advanced
+
+#Model 8:  Transfer learning with Glove but no interaction with cluseteing or unsupervised set: with a fraction - Advanced
+
+#Model 9: Clustering with glove6B to add additional examples - Advanced
+
+#Model 10: Train in cycles to add / remove examples with high probability - Advanced
+
+############# IDEAL: 5, 4 > 2 > 3 > 1 AND 10, 9 > 7 > 8 > 6
+
+
+
+
+
+
+
+
+
+
+#Possibly a fifth model that
+
+

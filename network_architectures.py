@@ -9,7 +9,7 @@ class sentiment_analysis_basic(Sequential):
         self.add(Dense(32, activation='relu'))
         self.add(Dense(1, activation='sigmoid'))
 
-class sentiment_analysis_advanced(Sequential):
+class sentiment_analysis_advanced(Sequential): #Should have 1D CNN and dropout or batchnorm
     def __int__(self, max_words=10000, embedding_dim=100, maxlen=100):
         self.__int__(super)
         self.add(Embedding(max_words, embedding_dim, input_length=maxlen))
