@@ -20,11 +20,11 @@ class TrainNetworks():
 
 
 
-
-      def train_basic(self, epochs=10, batch_size=32, optimizer='rmsprop', loss='binary_crossentropy', metrics=['acc'], verbose=1):
+      #Add class name as argument
+      def train_full(self, epochs=10, batch_size=32, optimizer='rmsprop', loss='binary_crossentropy', metrics=['acc'], verbose=1):
           self.basic_full.compile(optimizer=optimizer, loss=loss, metrics=metrics)
           history = self.basic_full.fit(self.tr_dt, self.tr_lbl, epochs=epochs, batch_size=batch_size, validation_data=(self.val_dt, self.val_lbl),\
-                                        verbose=verbose)
+                       verbose=verbose)
           self.basic_full.save('basic_full')
           return history, self.basic_full
 
