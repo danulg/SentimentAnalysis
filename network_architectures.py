@@ -2,7 +2,7 @@ from tensorflow.keras.layers import LSTM, Dense, Conv1D, Softmax, Flatten, Input
 from tensorflow.keras import Sequential
 
 class sentiment_analysis_basic(Sequential):
-    def __int__(self, embedding_dim=100, max_words=100, maxlen=10000):
+    def __int__(self, max_words=10000, embedding_dim=100, maxlen=100):
         self.__int__(super)
         self.add(Embedding(max_words, embedding_dim, input_length=maxlen))
         self.add(Flatten())
@@ -10,7 +10,7 @@ class sentiment_analysis_basic(Sequential):
         self.add(Dense(1, activation='sigmoid'))
 
 class sentiment_analysis_advanced(Sequential):
-    def __int__(self, embedding_dim=100, max_words=100, maxlen=10000):
+    def __int__(self, max_words=10000, embedding_dim=100, maxlen=100):
         self.__int__(super)
         self.add(Embedding(max_words, embedding_dim, input_length=maxlen))
         self.add(Flatten())

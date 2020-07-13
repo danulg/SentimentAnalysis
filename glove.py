@@ -5,11 +5,12 @@ from data_loader import IMDBDataSet
 class LoadGloVe():
     def __init__(self, words):
         super().__init__()
-        self.glove_dir = '/home/danulg/IMDB/glove.6B'
+        self.glove_dir = '/home/danul-g/IMDB/glove.6B'
         self.embeddings_index = {}
         self.word_index = words
 
-    def load_glove(self, embedding_dim = 100, max_words=10000):
+    def load_glove(self,
+                   max_words=10000, embedding_dim = 100):
         file_name = 'glove.6B.'+str(embedding_dim)+'d.txt'
         with open(os.path.join(self.glove_dir, file_name)) as f:
             for line in f:
@@ -36,4 +37,4 @@ if __name__ == '__main__':
     glove = LoadGloVe(words)
 
     matrix = glove.load_glove()
-    print(matrix)
+    print(matrix.shape)
