@@ -27,14 +27,13 @@ if __name__=="__main__":
     # Prepare GPU:
     gpus = tf.config.experimental.list_physical_devices('GPU')
     print(gpus)
-    # tf.config.experimental.set_virtual_device_configuration(gpus[0],\
-    #     [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=3000)])
-    # logical = tf.config.experimental.list_logical_devices('GPU')
-    # print(logical[0])
+    tf.config.experimental.set_virtual_device_configuration(gpus[0],\
+        [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=3000)])
+    logical = tf.config.experimental.list_logical_devices('GPU')
+    print(logical[0])
 
     encoder = Encoder()
-    print(type(encoder.layers[0]))
-    #encoder.layers[0].set_weights(weights)
+    encoder.layers[0].set_weights([weights])
 
     #Data Split?
     train_data = tr_dt[:20000]
