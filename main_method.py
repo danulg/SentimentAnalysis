@@ -39,4 +39,4 @@ weights = _.load_glove()
 
 # Create, train and save models
 mod_trainer = TrainNetworks(tr_dt, tr_lbl, val_dt, val_lbl, weights)
-basic_history, basic_model = mod_trainer.train_basic()
+basic_history, basic_model = mod_trainer.train_basic(name='basic')
