@@ -1,23 +1,28 @@
-from tensorflow.keras.layers import LSTM, Dense, Conv1D, Softmax, Flatten, Input, Embedding, Convolution1D
+from tensorflow.keras.layers import LSTM, Dense, Conv1D, Softmax, Flatten, Embedding, Input, Bidirectional, Dropout
 from tensorflow.keras import Sequential
 
 class SentimentAnalysisBasic(Sequential):
-    def __init__(self, max_words=10000, embedding_dim=100, maxlen=100):
+    def __init__(self, rate=0.45, max_words=10000, embedding_dim=100, maxlen=100):
         super().__init__()
         self.add(Embedding(max_words, embedding_dim, input_length=maxlen))
         self.add(Flatten())
         self.add(Dense(32, activation='relu'))
+        self.add(Dropout(rate))
         self.add(Dense(1, activation='sigmoid'))
 
-class SentimentAnalysisAdvanced(Sequential): #Should have 1D CNN and dropout or batchnorm
+class SentimentAnalysisBidirectional(Sequential): #Should have 1D CNN and dropout or batchnorm
     def __init__(self, max_words=10000, embedding_dim=100, maxlen=100):
         super().__init__()
-        self.add(Embedding(max_words, embedding_dim, input_length=maxlen))
-        self.add(Conv1D)
-        self.add(Flatten())
-        self.add(Dense(32, activation='relu'))
-        self.add(Dense(1, activation='sigmoid'))
-
+        self.add(Input(shape=(None,), dtype="int32"))
+        # Embed each integer in a 128-dimensional vector
+        self.add(Embedding(max_words, embedding_dim))
+        # Add 2 bidirectional LSTMs
+        self.add(Bidirectional(LSTM(64, return_sequences=True)))
+        self.add(Bidirectional(LSTM(64)))
+        # Add a classifier
+        self.add(Dense(1, activation="sigmoid"))
+        # model = keras.Model(inputs, outputs)
+        # model.summary()
 #GANs
 class DiscrimintorGan(Sequential):
     def __init__(self):

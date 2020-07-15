@@ -2,8 +2,8 @@ import tensorflow as tf
 import numpy as np
 import matplotlib
 from data_loader import IMDBDataSet
-from network_architectures import SentimentAnalysisBasic as SAB
-from network_architectures import SentimentAnalysisAdvanced as SAA
+from network_architectures import SentimentAnalysisBasic as SABasic
+from network_architectures import SentimentAnalysisBidirectional as SABi
 import bokeh
 
 class TrainNetworks():
@@ -16,22 +16,33 @@ class TrainNetworks():
           self.val_lbl = val_lbl
           self.glove_weights = weights
 
-      def train(self, name='basic', epochs=10, batch_size=32, optimizer='rmsprop', loss='binary_crossentropy', metrics=['acc'], verbose=1):
+      def train(self, name='basic', epochs=5, batch_size=32, optimizer='rmsprop', loss='binary_crossentropy', metrics=['acc'], verbose=1):
           if name == 'basic':
-              model = SAB()
+              model = SABasic()
 
-          elif name == 'advanced':
-              model = SAA()
+          elif name == 'glove_basic':
+              model = SABasic()
+              model.layers[0].set_weights([self.glove_weights])
+              model.layers[0].trainable = False
+
+          elif name == 'bidirectional':
+              model = SABi()
+
+          else:
+              print("Type of model not identified")
+              return 0, 0
 
           model.compile(optimizer=optimizer, loss=loss, metrics=metrics)
           history = model.fit(self.tr_dt, self.tr_lbl, epochs=epochs, batch_size=batch_size, validation_data=(self.val_dt, self.val_lbl),\
                        verbose=verbose)
-          model.save(name+'_model')
-          return history, self.basic_full
+          model.save(name+'_model_'+str(epochs))
+          return history, model
+
+      def train_unlabled(self, name='basic', epochs=10, batch_size=32, optimizer='rmsprop', loss='binary_crossentropy',
+                metrics=['acc'], verbose=1):
+          pass
 
 
-
-#Prepare GPU:
 
 
 

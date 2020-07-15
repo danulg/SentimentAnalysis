@@ -39,4 +39,6 @@ weights = _.load_glove()
 
 # Create, train and save models
 mod_trainer = TrainNetworks(tr_dt, tr_lbl, val_dt, val_lbl, weights)
-basic_history, basic_model = mod_trainer.train_basic(name='basic')
+#biderectional_history, biderectional_model = mod_trainer.train(name='bidirectional')
+basic_history, basic_model = mod_trainer.train(name='basic')
+glove_basic_history, glove_basic_model = mod_trainer.train(name='glove_basic')
