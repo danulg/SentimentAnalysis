@@ -26,7 +26,7 @@ class PlotCurves():
         plt.plot(range(5, 7), _, 'r')
         plt.title('Training and validation loss')
         plt.xlabel('Epochs')
-        plt.ylabel('Loss')
+        plt.ylabel('Accuracy')
         plt.legend()
         plt.show()
 
