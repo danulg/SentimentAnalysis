@@ -96,12 +96,16 @@ class IMDBDataSet():
             else:
                 return text, labels, word_index
 
-        else:
+        elif name == 'unsup':
             if is_numpy:
                 data, labels = self.__data_to_numpy(sequences, [],  maxlen)
                 return data, labels, word_index
             else:
                 return text, [], word_index
+
+        else:
+            print('data set not found')
+            return []
 
     def __data_to_numpy(self, sequences, labels, word_index, maxlen=100):
         #Convert to numpy
@@ -118,7 +122,7 @@ class IMDBDataSet():
             return data, labels
 
         else:
-            return data, labels, word_index
+            return data, labels
 
     def __tokenize(self, text, max_words=10000):
         # tokenize the text data

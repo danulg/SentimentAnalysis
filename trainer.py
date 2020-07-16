@@ -2,31 +2,40 @@ import tensorflow as tf
 import numpy as np
 import matplotlib
 from data_loader import IMDBDataSet
-from network_architectures import SentimentAnalysisBasic as SABasic
-from network_architectures import SentimentAnalysisBidirectional as SABi
+from network_architectures import SentimentAnalysisBasic as Basic
+from network_architectures import SentimentAnalysisBidirectional as Bidirectional
+from network_architectures import SentimentAnalysisSingleConv1D as SingleConv1D
+from network_architectures import SentimentAnalysisMultipleConv1D as MultipleConv1D
+
+
 import bokeh
 
 class TrainNetworks():
-      def __init__(self, tr_dt, tr_lbl, val_dt, val_lbl, weights):
+      def __init__(self, tr_dt, tr_lbl, val_dt, val_lbl, unsup, weights):
           super().__init__()
           #set class variables
           self.tr_dt = tr_dt
           self.tr_lbl = tr_lbl
           self.val_dt = val_dt
           self.val_lbl = val_lbl
+          self.val_lbl = val_lbl
           self.glove_weights = weights
+          self.unlabled = unsup
 
-      def train(self, name='basic', epochs=5, batch_size=32, optimizer='rmsprop', loss='binary_crossentropy', metrics=['acc'], verbose=1):
+      def train(self, name='basic', epochs=10, batch_size=32, rate=0.5, optimizer='adam', loss='binary_crossentropy', metrics=['acc'], verbose=1):
           if name == 'basic':
-              model = SABasic()
+              model = Basic(rate)
 
           elif name == 'glove_basic':
-              model = SABasic()
+              model = Basic(rate)
               model.layers[0].set_weights([self.glove_weights])
               model.layers[0].trainable = False
 
           elif name == 'bidirectional':
-              model = SABi()
+              model = Bidirectional()
+
+          elif name == 'conv':
+              model = SingleConv1D()
 
           else:
               print("Type of model not identified")
@@ -38,19 +47,53 @@ class TrainNetworks():
           model.save(name+'_model_'+str(epochs))
           return history, model
 
-      def train_unlabled(self, name='basic', epochs=10, batch_size=32, optimizer='rmsprop', loss='binary_crossentropy',
+      def train_unlabled(self, rate=0.5, name='basic', epochs=10, batch_size=32, optimizer='rmsprop', loss='binary_crossentropy',
                 metrics=['acc'], verbose=1):
-          pass
+          if name == 'basic':
+              model = Basic(rate)
 
+          elif name == 'glove_basic':
+              model = Basic(rate=0.5)
+              model.layers[0].set_weights([self.glove_weights])
+              model.layers[0].trainable = False
 
+          elif name == 'bidirectional':
+              model = Bidirectional()
 
+          else:
+              print("Type of model not identified")
+              return 0, 0
 
+          model.compile(optimizer=optimizer, loss=loss, metrics=metrics)
 
+          history_pt1 = model.fit(self.tr_dt, self.tr_lbl, batch_size=batch_size, epochs=int(epochs / 2 - 1),\
+                              validation_data=(self.val_dt, self.val_lbl), verbose=1)
 
+          predicitons = model.predict(self.unlabled)
 
+          #Adds high confidence results to training.
+          #Add more iterations and modify to keep track of added unlabled data
+          i = 0
+          k = np.array([1])
+          j = np.array([0])
+          for x in np.nditer(predicitons):
+              if x >= 0.8:
+                  x_train1 = np.append(self.tr_dt, np.array([self.unlabled[i]]), axis=0)
+                  y_train1 = np.append(self.tr_lbl, k)
+                  i += 1
+              elif x <= 0.2:
+                  x_train1 = np.append(self.tr_dt, np.array([self.unlabled[i]]), axis=0)
+                  y_train1 = np.append(self.tr_lbl, j)
+                  i += 1
+              else:
+                  i += 1
 
+          print("iteration cycle: 2")
+          history_pt2 = model.fit(self.tr_dt, self.tr_lbl, batch_size=batch_size, epochs=int(epochs / 2 - 1), \
+                                  validation_data=(self.val_dt, self.val_lbl), verbose=1)
 
-
+          model.save(name + '_iterative_model_' + str(epochs))
+          return history_pt1, history_pt2, model
 
 
 
