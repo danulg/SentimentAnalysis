@@ -4,7 +4,8 @@ import random
 from data_loader import IMDBDataSet
 from trainer import TrainNetworks
 from glove import LoadGloVe
-
+from compare_models import PlotCurves
+import dill
 
 #Set randomseeds
 
@@ -22,7 +23,6 @@ kernel_size = 5
 strides = 2
 pool_size = 4
 lstm_output_size = 4
-
 
 #Prep GPU: Does this code need to be else
 gpus = tf.config.experimental.list_physical_devices('GPU')
@@ -44,10 +44,17 @@ unsup, *_ = temp.load_data(name='unsup')
 temp = LoadGloVe(words)
 weights = temp.load_glove()
 
-
 # Create, train and save models
 mod_trainer = TrainNetworks(tr_dt, tr_lbl, val_dt, val_lbl, unsup, weights)
-#biderectional_history, biderectional_model = mod_trainer.train(name='bidirectional')
-#basic_history, basic_model = mod_trainer.train(name='basic', rate=0.52)
-#glove_basic_history, glove_basic_model = mod_trainer.train(name='glove_basic', rate=0.05)
-basic_history_pt1, basic_history_pt2, basic_model = mod_trainer.train_unlabled(name='basic', rate=0.5)
+biderectional_history, biderectional_model = mod_trainer.train(name='bidirectional')
+basic_history, basic_model = mod_trainer.train(name='basic', rate=0.6)
+glove_basic_history, glove_basic_model = mod_trainer.train(name='glove_basic', rate=0.6)
+iter_history_pt1, iter_history_pt2, basic_model = mod_trainer.train_unlabled(name='basic', rate=0.6)
+
+#Gather histories and save 
+history = [basic_history.history, glove_basic_history.history, [iter_history_pt1.history, iter_history_pt2.history]]
+dill.dump(history, open('history_1.pkd', 'wb'))
+
+#Draw plots
+curves = PlotCurves()
+curves.draw(dill.load(open('history_1.pkd', 'rb')))

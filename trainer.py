@@ -1,7 +1,4 @@
-import tensorflow as tf
 import numpy as np
-import matplotlib
-from data_loader import IMDBDataSet
 from network_architectures import SentimentAnalysisBasic as Basic
 from network_architectures import SentimentAnalysisBidirectional as Bidirectional
 from network_architectures import SentimentAnalysisSingleConv1D as SingleConv1D
@@ -47,7 +44,7 @@ class TrainNetworks():
           model.save(name+'_model_'+str(epochs))
           return history, model
 
-      def train_unlabled(self, rate=0.5, name='basic', epochs=10, batch_size=32, optimizer='rmsprop', loss='binary_crossentropy',
+      def train_unlabled(self, rate=0.5, name='basic', epochs=10, batch_size=32, optimizer='adam', loss='binary_crossentropy',
                 metrics=['acc'], verbose=1):
           if name == 'basic':
               model = Basic(rate)
@@ -66,7 +63,7 @@ class TrainNetworks():
 
           model.compile(optimizer=optimizer, loss=loss, metrics=metrics)
 
-          history_pt1 = model.fit(self.tr_dt, self.tr_lbl, batch_size=batch_size, epochs=int(epochs / 2 - 1),\
+          history_pt1 = model.fit(self.tr_dt, self.tr_lbl, batch_size=batch_size, epochs=int(epochs / 2),\
                               validation_data=(self.val_dt, self.val_lbl), verbose=1)
 
           predicitons = model.predict(self.unlabled)
@@ -89,7 +86,7 @@ class TrainNetworks():
                   i += 1
 
           print("iteration cycle: 2")
-          history_pt2 = model.fit(self.tr_dt, self.tr_lbl, batch_size=batch_size, epochs=int(epochs / 2 - 1), \
+          history_pt2 = model.fit(self.tr_dt, self.tr_lbl, batch_size=batch_size, epochs=int(epochs / 2), \
                                   validation_data=(self.val_dt, self.val_lbl), verbose=1)
 
           model.save(name + '_iterative_model_' + str(epochs))
@@ -127,16 +124,6 @@ class TrainNetworks():
 
 ############# IDEAL: 5, 4 > 2 > 3 > 1 AND 10, 9 > 7 > 8 > 6
 
-
-
-
-
-
-
-
-
-
-
-#Possibly a fifth model that
+#Possibly a fifth model that interacts with clustering
 
 
