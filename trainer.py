@@ -44,13 +44,17 @@ class TrainNetworks():
           model.save(name+'_model_'+str(epochs))
           return history, model
 
-      def train_unlabled(self, rate=0.5, name='basic', epochs=10, batch_size=32, optimizer='adam', loss='binary_crossentropy',
+      def train_unlabled(self, iterates=2, rate=0.5, name='basic', epochs=10, batch_size=32, optimizer='adam', loss='binary_crossentropy',\
                 metrics=['acc'], verbose=1):
+          if epochs%iterates != 0:
+              print('The epoch / iterate combination does not match: Aborting execution')
+              return 0, 0
+
           if name == 'basic':
-              model = Basic(rate)
+              model = Basic(rate=rate)
 
           elif name == 'glove_basic':
-              model = Basic(rate=0.5)
+              model = Basic(rate=rate)
               model.layers[0].set_weights([self.glove_weights])
               model.layers[0].trainable = False
 
@@ -63,35 +67,41 @@ class TrainNetworks():
 
           model.compile(optimizer=optimizer, loss=loss, metrics=metrics)
 
-          history_pt1 = model.fit(self.tr_dt, self.tr_lbl, batch_size=batch_size, epochs=int(epochs / 2),\
-                              validation_data=(self.val_dt, self.val_lbl), verbose=1)
-
-          predicitons = model.predict(self.unlabled)
-
-          #Adds high confidence results to training.
-          #Add more iterations and modify to keep track of added unlabled data
           i = 0
-          k = np.array([1])
-          j = np.array([0])
-          for x in np.nditer(predicitons):
-              if x >= 0.8:
-                  x_train1 = np.append(self.tr_dt, np.array([self.unlabled[i]]), axis=0)
-                  y_train1 = np.append(self.tr_lbl, k)
-                  i += 1
-              elif x <= 0.2:
-                  x_train1 = np.append(self.tr_dt, np.array([self.unlabled[i]]), axis=0)
-                  y_train1 = np.append(self.tr_lbl, j)
-                  i += 1
-              else:
-                  i += 1
+          history = []
+          sub_epoch = int(epochs / iterates)
 
-          print("iteration cycle: 2")
-          history_pt2 = model.fit(self.tr_dt, self.tr_lbl, batch_size=batch_size, epochs=int(epochs / 2), \
-                                  validation_data=(self.val_dt, self.val_lbl), verbose=1)
+          while(i<iterates):
+              print("iteration cycle:", i)
+              temp = model.fit(self.tr_dt, self.tr_lbl, batch_size=batch_size, epochs=sub_epoch,\
+                              validation_data=(self.val_dt, self.val_lbl), verbose=1)
+              history.append(temp)
+              self.__add_remove(model)
+              i+=1
+
 
           model.save(name + '_iterative_model_' + str(epochs))
-          return history_pt1, history_pt2, model
+          return history, model
 
+       def __add_remove(self, model):
+           predicitons = model.predict(self.unlabled)
+
+           # Adds high confidence results to training.
+           # Add more iterations and modify to keep track of added unlabled data
+           i = 0
+           k = np.array([1])
+           j = np.array([0])
+           for x in np.nditer(predicitons):
+               if x >= 0.8:
+                   x_train1 = np.append(self.tr_dt, np.array([self.unlabled[i]]), axis=0)
+                   y_train1 = np.append(self.tr_lbl, k)
+                   i += 1
+               elif x <= 0.2:
+                   x_train1 = np.append(self.tr_dt, np.array([self.unlabled[i]]), axis=0)
+                   y_train1 = np.append(self.tr_lbl, j)
+                   i += 1
+               else:
+                   i += 1
 
 
 

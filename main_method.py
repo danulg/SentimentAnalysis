@@ -1,14 +1,23 @@
+#import and set randomseeds
+import os
+os.environ['PYTHONHASHSEED']=str(12)
+
 import tensorflow as tf
-import numpy as np
+tf.random.set_seed(324)
+
 import random
+random.seed(14)
+
+import numpy as np
+import numpy as np
+np.random.seed(15)
+
+
 from data_loader import IMDBDataSet
 from trainer import TrainNetworks
 from glove import LoadGloVe
 from compare_models import PlotCurves
 import dill
-
-#Set randomseeds
-
 
 #Various relavant parameters across the classes
 #Shared by all classes Data Loader, Glove, Network Architectures
