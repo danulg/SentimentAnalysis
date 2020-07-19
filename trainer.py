@@ -83,25 +83,25 @@ class TrainNetworks():
           model.save(name + '_iterative_model_' + str(epochs))
           return history, model
 
-       def __add_remove(self, model):
-           predicitons = model.predict(self.unlabled)
+      def __add_remove(self, model):
+          predicitons = model.predict(self.unlabled)
 
-           # Adds high confidence results to training.
-           # Add more iterations and modify to keep track of added unlabled data
-           i = 0
-           k = np.array([1])
-           j = np.array([0])
-           for x in np.nditer(predicitons):
-               if x >= 0.8:
-                   x_train1 = np.append(self.tr_dt, np.array([self.unlabled[i]]), axis=0)
-                   y_train1 = np.append(self.tr_lbl, k)
-                   i += 1
-               elif x <= 0.2:
-                   x_train1 = np.append(self.tr_dt, np.array([self.unlabled[i]]), axis=0)
-                   y_train1 = np.append(self.tr_lbl, j)
-                   i += 1
-               else:
-                   i += 1
+          # Adds high confidence results to training.
+          # Add more iterations and modify to keep track of added unlabled data
+          i = 0
+          k = np.array([1])
+          j = np.array([0])
+          for x in np.nditer(predicitons):
+              if x >= 0.8:
+                  x_train1 = np.append(self.tr_dt, np.array([self.unlabled[i]]), axis=0)
+                  y_train1 = np.append(self.tr_lbl, k)
+                  i += 1
+              elif x <= 0.2:
+                  x_train1 = np.append(self.tr_dt, np.array([self.unlabled[i]]), axis=0)
+                  y_train1 = np.append(self.tr_lbl, j)
+                  i += 1
+              else:
+                  i += 1
 
 
 

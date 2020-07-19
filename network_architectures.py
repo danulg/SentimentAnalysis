@@ -1,6 +1,6 @@
 from tensorflow.keras.layers import LSTM, Dense, Conv1D, Softmax, Flatten, Embedding, Input, Bidirectional, Dropout, MaxPooling1D,\
     GlobalMaxPooling1D
-from tensorflow.keras import Sequential
+from tensorflow.keras.models import Sequential
 
 class SentimentAnalysisBasic(Sequential):
     def __init__(self, rate=0.5, max_words=10000, embedding_dim=100, maxlen=100):
