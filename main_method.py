@@ -36,8 +36,10 @@ lstm_output_size = 4
 #Prep GPU: Does this code need to be else
 gpus = tf.config.experimental.list_physical_devices('GPU')
 print(gpus)
+# tf.config.experimental.set_virtual_device_configuration(gpus[0], [tf.config.experimental.VirtualDeviceConfiguration(\
+#      memory_limit=6000)])
 tf.config.experimental.set_virtual_device_configuration(gpus[0], [tf.config.experimental.VirtualDeviceConfiguration(\
-      memory_limit=6000)])
+      memory_limit=3000)])
 logical = tf.config.experimental.list_logical_devices('GPU')
 print(logical[0])
 
@@ -65,5 +67,5 @@ history = [basic_history.history, glove_basic_history.history, [iter_history_pt1
 dill.dump(history, open('history_1.pkd', 'wb'))
 
 #Draw plots
-curves = PlotCurves()
-curves.draw(dill.load(open('history_1.pkd', 'rb')))
+#curves = PlotCurves()
+#curves.draw(dill.load(open('history_1.pkd', 'rb')))
