@@ -42,7 +42,7 @@ class TrainNetworks():
           history = model.fit(self.tr_dt, self.tr_lbl, epochs=epochs, batch_size=batch_size, validation_data=(self.val_dt, self.val_lbl),\
                        verbose=verbose)
           model.save(name+'_model_'+str(epochs))
-          return history, model
+          return history.history, model
 
       def train_unlabled(self, iterates=2, rate=0.5, name='basic', sub_epochs=5, batch_size=32, optimizer='adam', loss='binary_crossentropy',\
                 metrics=['acc'], verbose=1):
@@ -71,7 +71,7 @@ class TrainNetworks():
               print("iteration cycle:", i)
               temp = model.fit(self.tr_dt, self.tr_lbl, batch_size=batch_size, epochs=sub_epochs,\
                               validation_data=(self.val_dt, self.val_lbl), verbose=1)
-              history.append(temp)
+              history.append(temp.history)
               self.__add_remove(model)
               print('The number of training examples for iterate ' + str(i) +' is:', len(self.tr_dt))
               print('The number of unlabled examples left:', len(self.unlabled))
@@ -92,12 +92,12 @@ class TrainNetworks():
           to_remove = []
 
           for x in np.nditer(predicitons):
-              if x >= 0.8:
+              if x >= 0.88:
                   self.tr_dt = np.append(self.tr_dt, np.array([self.unlabled[i]]), axis=0)
                   self.tr_lbl = np.append(self.tr_lbl, np_one)
                   to_remove.append(i)
                   i += 1
-              elif x <= 0.2:
+              elif x <= 0.12:
                   self.tr_dt = np.append(self.tr_dt, np.array([self.unlabled[i]]), axis=0)
                   self.tr_lbl = np.append(self.tr_lbl, np_zero)
                   to_remove.append(i)

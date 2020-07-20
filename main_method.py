@@ -44,37 +44,38 @@ logical = tf.config.experimental.list_logical_devices('GPU')
 print(logical[0])
 
 #Load and pratition data sets.
-temp = IMDBDataSet()
-tr, lbl, words = temp.load_data()
-tr_dt = tr[:20000]
-tr_lbl = lbl[:20000]
-val_dt = tr[20000:]
-val_lbl = lbl[20000:]
-unsup, *_ = temp.load_data(name='unsup')
+# temp = IMDBDataSet()
+# tr, lbl, words = temp.load_data()
+# tr_dt = tr[:20000]
+# tr_lbl = lbl[:20000]
+# val_dt = tr[20000:]
+# val_lbl = lbl[20000:]
+# unsup, *_ = temp.load_data(name='unsup')
+#
+# temp = LoadGloVe(words)
+# weights = temp.load_glove()
 
-temp = LoadGloVe(words)
-weights = temp.load_glove()
 
-# Create, train and save models
-mod_trainer = TrainNetworks(tr_dt, tr_lbl, val_dt, val_lbl, unsup, weights)
 
 # Parameters for training
-epochs = 15
+epochs = 12
 rate = 0.6
-iterates = 5
-sub_epochs = 3
+iterates = 3
+sub_epochs = 4
 
-assert sub_epochs*iterates == epochs
-
+# Create, train and save models
+# mod_trainer = TrainNetworks(tr_dt, tr_lbl, val_dt, val_lbl, unsup, weights)
+# assert sub_epochs*iterates == epochs
 # basic_history, basic_model = mod_trainer.train(name='basic', epochs=epochs, rate=rate)
 # glove_basic_history, glove_basic_model = mod_trainer.train(name='glove_basic', epochs=epochs, rate=rate)
-iter_history, basic_iter_model = mod_trainer.train_unlabled(name='basic', sub_epochs=sub_epochs, iterates=iterates, rate=rate)
-# biderectional_history, biderectional_model = mod_trainer.train(name='bidirectional', epochs=epochs)
+# iter_history, basic_iter_model = mod_trainer.train_unlabled(name='basic', sub_epochs=sub_epochs, iterates=iterates, rate=rate)
+# # biderectional_history, biderectional_model = mod_trainer.train(name='bidirectional', epochs=epochs)
 
-#Gather histories and save 
-# history = [basic_history.history, glove_basic_history.history, iter_history]
+
+# Gather histories and save
+# history = [basic_history, glove_basic_history, iter_history]
 # dill.dump(history, open('history_1.pkd', 'wb'))
-#
-# #Draw plots
-# curves = PlotCurves()
-# curves.draw(dill.load(open('history_1.pkd', 'rb')))
+
+#Draw plots
+curves = PlotCurves()
+curves.draw(dill.load(open('history_1.pkd', 'rb')), sub_epochs=sub_epochs, iterates=iterates)
