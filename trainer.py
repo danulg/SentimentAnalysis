@@ -92,12 +92,12 @@ class TrainNetworks():
           to_remove = []
 
           for x in np.nditer(predicitons):
-              if x >= 0.88:
+              if x >= 0.8:
                   self.tr_dt = np.append(self.tr_dt, np.array([self.unlabled[i]]), axis=0)
                   self.tr_lbl = np.append(self.tr_lbl, np_one)
                   to_remove.append(i)
                   i += 1
-              elif x <= 0.12:
+              elif x <= 0.2:
                   self.tr_dt = np.append(self.tr_dt, np.array([self.unlabled[i]]), axis=0)
                   self.tr_lbl = np.append(self.tr_lbl, np_zero)
                   to_remove.append(i)

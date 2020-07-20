@@ -29,7 +29,7 @@ class PlotCurves():
             else:
                 plt.plot(range(1+sub_epochs*i, 1+sub_epochs*(i+1)), iter_dict['acc'], 'ro')
                 plt.plot(range(1+sub_epochs*i, 1+sub_epochs*(i+1)), iter_dict['val_acc'], 'r')
-                _ = [iter_dict['val_acc'][3], iter_dict['val_acc'][0]]
+                _ = [iter_history[i-1]['val_acc'][sub_epochs-1], iter_dict['val_acc'][0]]
                 plt.plot(range(sub_epochs*i, sub_epochs*i+2), _, 'r')
                 i+=1
 

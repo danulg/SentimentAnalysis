@@ -44,37 +44,37 @@ logical = tf.config.experimental.list_logical_devices('GPU')
 print(logical[0])
 
 #Load and pratition data sets.
-# temp = IMDBDataSet()
-# tr, lbl, words = temp.load_data()
-# tr_dt = tr[:20000]
-# tr_lbl = lbl[:20000]
-# val_dt = tr[20000:]
-# val_lbl = lbl[20000:]
-# unsup, *_ = temp.load_data(name='unsup')
-#
-# temp = LoadGloVe(words)
-# weights = temp.load_glove()
+temp = IMDBDataSet()
+tr, lbl, words = temp.load_data()
+tr_dt = tr[:20000]
+tr_lbl = lbl[:20000]
+val_dt = tr[20000:]
+val_lbl = lbl[20000:]
+unsup, *_ = temp.load_data(name='unsup')
+
+temp = LoadGloVe(words)
+weights = temp.load_glove()
 
 
 
 # Parameters for training
-epochs = 12
+epochs = 8
 rate = 0.6
-iterates = 3
+iterates = 2
 sub_epochs = 4
 
-# Create, train and save models
-# mod_trainer = TrainNetworks(tr_dt, tr_lbl, val_dt, val_lbl, unsup, weights)
-# assert sub_epochs*iterates == epochs
-# basic_history, basic_model = mod_trainer.train(name='basic', epochs=epochs, rate=rate)
-# glove_basic_history, glove_basic_model = mod_trainer.train(name='glove_basic', epochs=epochs, rate=rate)
-# iter_history, basic_iter_model = mod_trainer.train_unlabled(name='basic', sub_epochs=sub_epochs, iterates=iterates, rate=rate)
+# # Create, train and save models
+mod_trainer = TrainNetworks(tr_dt, tr_lbl, val_dt, val_lbl, unsup, weights)
+assert sub_epochs*iterates == epochs
+basic_history, basic_model = mod_trainer.train(name='basic', epochs=epochs, rate=rate)
+glove_basic_history, glove_basic_model = mod_trainer.train(name='glove_basic', epochs=epochs, rate=rate)
+iter_history, basic_iter_model = mod_trainer.train_unlabled(name='basic', sub_epochs=sub_epochs, iterates=iterates, rate=rate)
 # # biderectional_history, biderectional_model = mod_trainer.train(name='bidirectional', epochs=epochs)
 
 
 # Gather histories and save
-# history = [basic_history, glove_basic_history, iter_history]
-# dill.dump(history, open('history_1.pkd', 'wb'))
+history = [basic_history, glove_basic_history, iter_history]
+dill.dump(history, open('history_1.pkd', 'wb'))
 
 #Draw plots
 curves = PlotCurves()
