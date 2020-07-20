@@ -61,13 +61,13 @@ mod_trainer = TrainNetworks(tr_dt, tr_lbl, val_dt, val_lbl, unsup, weights)
 # Parameters for training
 epochs = 15
 rate = 0.6
-iterates = 3
-sub_epochs = 5
+iterates = 5
+sub_epochs = 3
 
 assert sub_epochs*iterates == epochs
 
-basic_history, basic_model = mod_trainer.train(name='basic', epochs=epochs, rate=rate)
-glove_basic_history, glove_basic_model = mod_trainer.train(name='glove_basic', epochs=epochs, rate=rate)
+# basic_history, basic_model = mod_trainer.train(name='basic', epochs=epochs, rate=rate)
+# glove_basic_history, glove_basic_model = mod_trainer.train(name='glove_basic', epochs=epochs, rate=rate)
 iter_history, basic_iter_model = mod_trainer.train_unlabled(name='basic', sub_epochs=sub_epochs, iterates=iterates, rate=rate)
 # biderectional_history, biderectional_model = mod_trainer.train(name='bidirectional', epochs=epochs)
 

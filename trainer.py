@@ -73,6 +73,8 @@ class TrainNetworks():
                               validation_data=(self.val_dt, self.val_lbl), verbose=1)
               history.append(temp)
               self.__add_remove(model)
+              print('The number of training examples for iterate ' + str(i) +' is:', len(self.tr_dt))
+              print('The number of unlabled examples left:', len(self.unlabled))
               i+=1
 
 
@@ -85,21 +87,25 @@ class TrainNetworks():
           # Adds high confidence results to training.
           # Add more iterations and modify to keep track of added unlabled data
           i = 0
-          k = np.array([1])
-          j = np.array([0])
+          np_one = np.array([1])
+          np_zero = np.array([0])
+          to_remove = []
+
           for x in np.nditer(predicitons):
               if x >= 0.8:
-                  np.append(self.tr_dt, np.array([self.unlabled[i]]), axis=0)
-                  np.append(self.tr_lbl, k)
+                  self.tr_dt = np.append(self.tr_dt, np.array([self.unlabled[i]]), axis=0)
+                  self.tr_lbl = np.append(self.tr_lbl, np_one)
+                  to_remove.append(i)
                   i += 1
               elif x <= 0.2:
-                  np.append(self.tr_dt, np.array([self.unlabled[i]]), axis=0)
-                  np.append(self.tr_lbl, j)
+                  self.tr_dt = np.append(self.tr_dt, np.array([self.unlabled[i]]), axis=0)
+                  self.tr_lbl = np.append(self.tr_lbl, np_zero)
+                  to_remove.append(i)
                   i += 1
               else:
                   i += 1
 
-
+          self.unlabled = np.delete(self.unlabled, to_remove, axis=0)
 
 
 #Unsupervised: Ideas include running through half trained and adding and taking out high threshold data!
@@ -131,5 +137,11 @@ class TrainNetworks():
 ############# IDEAL: 5, 4 > 2 > 3 > 1 AND 10, 9 > 7 > 8 > 6
 
 #Possibly a fifth model that interacts with clustering
+
+# for x in self.unlabled:
+#     y = model.predict(x)
+#
+#     if y>=0.8:
+#        np.append(self.tr_dt, x, axis=0)
 
 
