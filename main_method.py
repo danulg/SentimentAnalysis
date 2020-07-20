@@ -36,10 +36,10 @@ lstm_output_size = 4
 #Prep GPU: Does this code need to be else
 gpus = tf.config.experimental.list_physical_devices('GPU')
 print(gpus)
-# tf.config.experimental.set_virtual_device_configuration(gpus[0], [tf.config.experimental.VirtualDeviceConfiguration(\
-#      memory_limit=6000)])
 tf.config.experimental.set_virtual_device_configuration(gpus[0], [tf.config.experimental.VirtualDeviceConfiguration(\
-      memory_limit=3000)])
+     memory_limit=6000)])
+# tf.config.experimental.set_virtual_device_configuration(gpus[0], [tf.config.experimental.VirtualDeviceConfiguration(\
+#       memory_limit=3000)])
 logical = tf.config.experimental.list_logical_devices('GPU')
 print(logical[0])
 
@@ -57,15 +57,24 @@ weights = temp.load_glove()
 
 # Create, train and save models
 mod_trainer = TrainNetworks(tr_dt, tr_lbl, val_dt, val_lbl, unsup, weights)
-biderectional_history, biderectional_model = mod_trainer.train(name='bidirectional')
-basic_history, basic_model = mod_trainer.train(name='basic', rate=0.6)
-glove_basic_history, glove_basic_model = mod_trainer.train(name='glove_basic', rate=0.6)
-iter_history_pt1, iter_history_pt2, basic_model = mod_trainer.train_unlabled(name='basic', rate=0.6)
+
+# Parameters for training
+epochs = 15
+rate = 0.6
+iterates = 3
+sub_epochs = 5
+
+assert sub_epochs*iterates == epochs
+
+basic_history, basic_model = mod_trainer.train(name='basic', epochs=epochs, rate=rate)
+glove_basic_history, glove_basic_model = mod_trainer.train(name='glove_basic', epochs=epochs, rate=rate)
+iter_history, basic_iter_model = mod_trainer.train_unlabled(name='basic', sub_epochs=sub_epochs, iterates=iterates, rate=rate)
+# biderectional_history, biderectional_model = mod_trainer.train(name='bidirectional', epochs=epochs)
 
 #Gather histories and save 
-history = [basic_history.history, glove_basic_history.history, [iter_history_pt1.history, iter_history_pt2.history]]
-dill.dump(history, open('history_1.pkd', 'wb'))
-
-#Draw plots
-#curves = PlotCurves()
-#curves.draw(dill.load(open('history_1.pkd', 'rb')))
+# history = [basic_history.history, glove_basic_history.history, iter_history]
+# dill.dump(history, open('history_1.pkd', 'wb'))
+#
+# #Draw plots
+# curves = PlotCurves()
+# curves.draw(dill.load(open('history_1.pkd', 'rb')))

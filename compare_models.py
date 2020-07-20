@@ -7,7 +7,7 @@ class PlotCurves():
     def __init__(self):
         super().__init__()
 
-    def draw(self, model_histories, epochs=10):
+    def draw(self, model_histories, epochs=10, iterates=2):
         bench_dict = model_histories[0]
         small_dict = model_histories[1]
         iter1_dict = model_histories[2][0]
