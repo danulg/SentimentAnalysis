@@ -76,17 +76,21 @@ assert sub_epochs*iterates == epochs
 # iter_history, basic_iter_model = mod_trainer.train_unlabled(name='basic', sub_epochs=sub_epochs, iterates=iterates, rate=rate,\
 #                                                              cutoff=cutoff)
 
+# Gather histories and save
+# history = [bidirectional_history, glove_bidirectional_history, iter_bidirectional_history]
+# dill.dump(history, open('history_1.pkd', 'wb'))
+
 
 #Train neural network architecture: bidirectional. Rate is currently redundant as it has no dropout
-bidirectional_history, bidirectional_model = mod_trainer.train(name='bidirectional', epochs=epochs, rate=rate)
-glove_bidirectional_history, glove_bidirectional_model = mod_trainer.train(name='glove_bidirectional', epochs=epochs, rate=rate)
-iter_history, bidirectional_iter_model = mod_trainer.train_unlabled(name='bidirectional', sub_epochs=sub_epochs, iterates=iterates,\
-                                                                   rate=rate, cutoff=cutoff)
+# bidirectional_history, bidirectional_model = mod_trainer.train(name='bidirectional', epochs=epochs, rate=rate)
+# glove_bidirectional_history, glove_bidirectional_model = mod_trainer.train(name='glove_bidirectional', epochs=epochs, rate=rate)
+# iter_bidirectional_history, bidirectional_iter_model = mod_trainer.train_unlabled(name='bidirectional', sub_epochs=sub_epochs, iterates=iterates,\
+#                                                                    rate=rate, cutoff=cutoff)
 
 
 # Gather histories and save
-history = [bidirectional_history, glove_bidirectional_history, iter_bidirectional_history]
-dill.dump(history, open('history_bidirectional.pkd', 'wb'))
+# history = [bidirectional_history, glove_bidirectional_history, iter_bidirectional_history]
+# dill.dump(history, open('history_bidirectional.pkd', 'wb'))
 
 #Draw plots
 curves = PlotCurves()

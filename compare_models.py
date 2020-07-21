@@ -94,6 +94,9 @@ class PlotCurves():
         pass
 
 if __name__=="__main__":
-    plot = PlotCurves()
-    plot.draw_word_cloud()
+    curves = PlotCurves()
+    # curves.draw(dill.load(open('history_1.pkd', 'rb')), sub_epochs=sub_epochs, iterates=iterates)
+    #curves.bokeh_draw(dill.load(open('history_bidirectional.pkd', 'rb')), sub_epochs=4, iterates=4)
+    dictionary = dill.load(open('history_bidirectional.pkd', 'rb'))
+
     pass

@@ -31,8 +31,26 @@ class TrainNetworks():
           elif name == 'bidirectional':
               model = Bidirectional()
 
+          elif name == 'glove_bidirectional':
+              model = Bidirectional(rate)
+              model.layers[0].set_weights([self.glove_weights])
+              model.layers[0].trainable = False
+
           elif name == 'conv':
               model = SingleConv1D()
+
+          elif name == 'glove_conv':
+              model = SingleConv1D(rate)
+              model.layers[0].set_weights([self.glove_weights])
+              model.layers[0].trainable = False
+
+          elif name == 'conv_md':
+              model = MultipleConv1D()
+
+          elif name == 'glove_conv_md':
+              model = MultipleConv1D(rate)
+              model.layers[0].set_weights([self.glove_weights])
+              model.layers[0].trainable = False
 
           else:
               print("Type of model not identified")
