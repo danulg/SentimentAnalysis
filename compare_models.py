@@ -75,66 +75,25 @@ class PlotCurves():
         # show the results
         show(fig)
 
-    def DrawWordCloud(self):
+    def draw_word_cloud(self):
+        with open('train_text.pkd', 'rb') as f:
+            text = dill.load(f)
+
+        stopwords = set(STOPWORDS)
+        stopwords.update(
+            ["movie", "hi", 'film', 'wa', 'this', 'this movie', 'whole', "the whole", 'thi', 'story', 'ha'])
+        text = " ".join(review for review in text)
+        text = text.lower()
+        # Create and generate a word cloud image:
+        wordcloud = WordCloud(stopwords=stopwords, background_color="white").generate(text)
+
+        # Display the generated image:
+        plt.imshow(wordcloud, interpolation='bilinear')
+        plt.axis("off")
+        plt.show()
         pass
 
 if __name__=="__main__":
-    with open('train_text.pkd', 'rb') as f:
-        text = dill.load(f)
-
-    stopwords = set(STOPWORDS)
-    stopwords.update(["movie", "hi", 'film', 'wa', 'this', 'this movie', 'whole', "the whole", 'thi', 'story'])
-    text = " ".join(review for review in text)
-    text = text.lower()
-    # Create and generate a word cloud image:
-    wordcloud = WordCloud(stopwords=stopwords, background_color="white").generate(text)
-
-
-    # Display the generated image:
-    plt.imshow(wordcloud, interpolation='bilinear')
-    plt.axis("off")
-    plt.show()
-    #
-    # word_count = Counter()
-    #
-    # for x in text:
-    #     for y in x.split():
-    #         word_count[y]+=1
-    #
-    # dill.dump(word_count, open('word_count.pkd', 'wb'))
-
-    word_count = dill.load(open('word_count.pkd', 'rb'))
-    #print(word_count.items())
-
-
-
-
-
-    # iterate through the csv file
-    # for val in df.CONTENT:
-    #
-    #     # typecaste each val to string
-    #     val = str(val)
-    #
-    #     # split the value
-    #     tokens = val.split()
-    #
-    #     # Converts each token into lowercase
-    #     for i in range(len(tokens)):
-    #         tokens[i] = tokens[i].lower()
-    #
-    #     comment_words += " ".join(tokens) + " "
-    #
-    # wordcloud = WordCloud(width=800, height=800,
-    #                       background_color='white',
-    #                       stopwords=stopwords,
-    #                       min_font_size=10).generate(comment_words)
-    #
-    # # plot the WordCloud image
-    # plt.figure(figsize=(8, 8), facecolor=None)
-    # plt.imshow(wordcloud)
-    # plt.axis("off")
-    # plt.tight_layout(pad=0)
-    #
-    # plt.show()
+    plot = PlotCurves()
+    plot.draw_word_cloud()
     pass
