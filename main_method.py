@@ -33,7 +33,7 @@ strides = 2
 pool_size = 4
 lstm_output_size = 4
 
-#Prep GPU: Does this code need to be else
+#Prep GPU:
 gpus = tf.config.experimental.list_physical_devices('GPU')
 print(gpus)
 tf.config.experimental.set_virtual_device_configuration(gpus[0], [tf.config.experimental.VirtualDeviceConfiguration(\
