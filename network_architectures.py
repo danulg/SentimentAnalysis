@@ -16,7 +16,7 @@ class SentimentAnalysisBidirectional(Sequential): #Should have 1D CNN and dropou
     def __init__(self, max_words=10000, embedding_dim=100, maxlen=100):
         super().__init__()
         self.add(Input(shape=(None,), dtype="int32"))
-        # Embed each integer in a 128-dimensional vector
+        # Embed each integer in a 100-dimensional vector
         self.add(Embedding(max_words, embedding_dim))
         # Add 2 bidirectional LSTMs
         self.add(Bidirectional(LSTM(64, return_sequences=True)))

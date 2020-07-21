@@ -44,8 +44,8 @@ class TrainNetworks():
           model.save(name+'_model_'+str(epochs))
           return history.history, model
 
-      def train_unlabled(self, iterates=2, rate=0.5, name='basic', sub_epochs=5, batch_size=32, optimizer='adam', loss='binary_crossentropy',\
-                metrics=['acc'], verbose=1):
+      def train_unlabled(self, iterates=2, rate=0.5, name='basic', sub_epochs=5, batch_size=32, cutoff=0.8, optimizer='adam',\
+                         loss='binary_crossentropy', metrics=['acc'], verbose=1):
 
           if name == 'basic':
               model = Basic(rate=rate)
@@ -72,7 +72,7 @@ class TrainNetworks():
               temp = model.fit(self.tr_dt, self.tr_lbl, batch_size=batch_size, epochs=sub_epochs,\
                               validation_data=(self.val_dt, self.val_lbl), verbose=1)
               history.append(temp.history)
-              self.__add_remove(model)
+              self.__add_remove(model, cutoff)
               print('The number of training examples for iterate ' + str(i) +' is:', len(self.tr_dt))
               print('The number of unlabled examples left:', len(self.unlabled))
               i+=1
@@ -81,7 +81,7 @@ class TrainNetworks():
           model.save(name + '_iterative_model_' + str(sub_epochs) + '_' + str(iterates))
           return history, model
 
-      def __add_remove(self, model):
+      def __add_remove(self, model, cutoff):
           predicitons = model.predict(self.unlabled)
 
           # Adds high confidence results to training.
@@ -92,12 +92,12 @@ class TrainNetworks():
           to_remove = []
 
           for x in np.nditer(predicitons):
-              if x >= 0.8:
+              if x >= cutoff:
                   self.tr_dt = np.append(self.tr_dt, np.array([self.unlabled[i]]), axis=0)
                   self.tr_lbl = np.append(self.tr_lbl, np_one)
                   to_remove.append(i)
                   i += 1
-              elif x <= 0.2:
+              elif x <= 1-cutoff:
                   self.tr_dt = np.append(self.tr_dt, np.array([self.unlabled[i]]), axis=0)
                   self.tr_lbl = np.append(self.tr_lbl, np_zero)
                   to_remove.append(i)

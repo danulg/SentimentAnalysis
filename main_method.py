@@ -44,16 +44,16 @@ logical = tf.config.experimental.list_logical_devices('GPU')
 print(logical[0])
 
 #Load and pratition data sets.
-# temp = IMDBDataSet()
-# tr, lbl, words = temp.load_data()
-# tr_dt = tr[:20000]
-# tr_lbl = lbl[:20000]
-# val_dt = tr[20000:]
-# val_lbl = lbl[20000:]
-# unsup, *_ = temp.load_data(name='unsup')
+temp = IMDBDataSet()
+tr, lbl, words = temp.load_data()
+tr_dt = tr[:20000]
+tr_lbl = lbl[:20000]
+val_dt = tr[20000:]
+val_lbl = lbl[20000:]
+unsup, *_ = temp.load_data(name='unsup')
 
-# temp = LoadGloVe(words)
-# weights = temp.load_glove()
+temp = LoadGloVe(words)
+weights = temp.load_glove()
 
 
 
@@ -62,21 +62,33 @@ epochs = 8
 rate = 0.6
 iterates = 2
 sub_epochs = 4
+cutoff = 0.8
 
-# # Create, train and save models
-# mod_trainer = TrainNetworks(tr_dt, tr_lbl, val_dt, val_lbl, unsup, weights)
-# assert sub_epochs*iterates == epochs
+# # Create model trainer
+mod_trainer = TrainNetworks(tr_dt, tr_lbl, val_dt, val_lbl, unsup, weights)
+
+#Verify that epochs, iterates, sub epochs match up
+assert sub_epochs*iterates == epochs
+
+#Train neural network architecture: Basic
 # basic_history, basic_model = mod_trainer.train(name='basic', epochs=epochs, rate=rate)
 # glove_basic_history, glove_basic_model = mod_trainer.train(name='glove_basic', epochs=epochs, rate=rate)
-# iter_history, basic_iter_model = mod_trainer.train_unlabled(name='basic', sub_epochs=sub_epochs, iterates=iterates, rate=rate)
-# # biderectional_history, biderectional_model = mod_trainer.train(name='bidirectional', epochs=epochs)
+# iter_history, basic_iter_model = mod_trainer.train_unlabled(name='basic', sub_epochs=sub_epochs, iterates=iterates, rate=rate,\
+#                                                              cutoff=cutoff)
+
+
+#Train neural network architecture: bidirectional. Rate is currently redundant as it has no dropout
+bidirectional_history, bidirectional_model = mod_trainer.train(name='bidirectional', epochs=epochs, rate=rate)
+glove_bidirectional_history, glove_bidirectional_model = mod_trainer.train(name='glove_bidirectional', epochs=epochs, rate=rate)
+iter_history, bidirectional_iter_model = mod_trainer.train_unlabled(name='bidirectional', sub_epochs=sub_epochs, iterates=iterates,\
+                                                                   rate=rate, cutoff=cutoff)
 
 
 # Gather histories and save
-# history = [basic_history, glove_basic_history, iter_history]
-# dill.dump(history, open('history_1.pkd', 'wb'))
+history = [bidirectional_history, glove_bidirectional_history, iter_bidirectional_history]
+dill.dump(history, open('history_bidirectional.pkd', 'wb'))
 
 #Draw plots
 curves = PlotCurves()
 # curves.draw(dill.load(open('history_1.pkd', 'rb')), sub_epochs=sub_epochs, iterates=iterates)
-curves.bokeh_draw(dill.load(open('history_1.pkd', 'rb')), sub_epochs=sub_epochs, iterates=iterates)
+curves.bokeh_draw(dill.load(open('history_bidirectional.pkd', 'rb')), sub_epochs=sub_epochs, iterates=iterates)
