@@ -1,6 +1,7 @@
 #Draw images using bokeh on train / test accuracies
 from matplotlib import pyplot as plt
-from bokeh.plotting import figure, output_file, show
+from bokeh.plotting import figure, show
+from bokeh.io import export_png
 import dill
 from collections import Counter
 from wordcloud import WordCloud, STOPWORDS
@@ -71,8 +72,10 @@ class PlotCurves():
                 x = [iter_history[i-1]['val_acc'][sub_epochs-1], iter_dict['val_acc'][0]]
                 fig.line(range(sub_epochs*i, sub_epochs*i+2), x, color='red')
                 i+=1
-        #
-        # show the results
+
+        # show and save the results
+        name = str(sub_epochs)+'_'+str(iterates)+'.png'
+        export_png(fig, filename=name)
         show(fig)
 
     def draw_word_cloud(self):
