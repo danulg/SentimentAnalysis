@@ -5,8 +5,6 @@ from network_architectures import SentimentAnalysisSingleConv1D as SingleConv1D
 from network_architectures import SentimentAnalysisMultipleConv1D as MultipleConv1D
 
 
-import bokeh
-
 class TrainNetworks():
       def __init__(self, tr_dt, tr_lbl, val_dt, val_lbl, unsup, weights):
           super().__init__()
@@ -19,28 +17,29 @@ class TrainNetworks():
           self.glove_weights = weights
           self.unlabled = unsup
 
-      def train(self, name='basic', epochs=10, batch_size=32, rate=0.5, optimizer='adam', loss='binary_crossentropy', metrics=['acc'], verbose=1):
+      def train(self, name='basic', data='labled_only', rate=0.5, sub_epochs=5, iterates=2, epochs=10, batch_size=32,  optimizer='adam',\
+                loss='binary_crossentropy', metrics=['acc'], verbose=1, cutoff=0.8):
           if name == 'basic':
-              model = Basic(rate)
+              model = Basic(rate=rate)
 
           elif name == 'glove_basic':
-              model = Basic(rate)
+              model = Basic(rate=rate)
               model.layers[0].set_weights([self.glove_weights])
               model.layers[0].trainable = False
 
           elif name == 'bidirectional':
-              model = Bidirectional()
+              model = Bidirectional(rate=rate)
 
           elif name == 'glove_bidirectional':
-              model = Bidirectional(rate)
+              model = Bidirectional(rate=rate)
               model.layers[0].set_weights([self.glove_weights])
               model.layers[0].trainable = False
 
           elif name == 'conv':
-              model = SingleConv1D()
+              model = SingleConv1D(rate=rate)
 
           elif name == 'glove_conv':
-              model = SingleConv1D(rate)
+              model = SingleConv1D(rate=rate)
               model.layers[0].set_weights([self.glove_weights])
               model.layers[0].trainable = False
 
@@ -48,7 +47,7 @@ class TrainNetworks():
               model = MultipleConv1D()
 
           elif name == 'glove_conv_md':
-              model = MultipleConv1D(rate)
+              model = MultipleConv1D(rate=rate)
               model.layers[0].set_weights([self.glove_weights])
               model.layers[0].trainable = False
 
@@ -57,47 +56,33 @@ class TrainNetworks():
               return 0, 0
 
           model.compile(optimizer=optimizer, loss=loss, metrics=metrics)
-          history = model.fit(self.tr_dt, self.tr_lbl, epochs=epochs, batch_size=batch_size, validation_data=(self.val_dt, self.val_lbl),\
-                       verbose=verbose)
-          model.save(name+'_model_'+str(epochs))
-          return history.history, model
 
-      def train_unlabled(self, iterates=2, rate=0.5, name='basic', sub_epochs=5, batch_size=32, cutoff=0.8, optimizer='adam',\
-                         loss='binary_crossentropy', metrics=['acc'], verbose=1):
-
-          if name == 'basic':
-              model = Basic(rate=rate)
-
-          elif name == 'glove_basic':
-              model = Basic(rate=rate)
-              model.layers[0].set_weights([self.glove_weights])
-              model.layers[0].trainable = False
-
-          elif name == 'bidirectional':
-              model = Bidirectional()
+          if data == 'labled':
+              history = model.fit(self.tr_dt, self.tr_lbl, epochs=epochs, batch_size=batch_size, validation_data=(self.val_dt, \
+                                self.val_lbl), verbose=verbose)
+              model.save(name+'_model_'+str(epochs))
+              return history.history, model
 
           else:
-              print("Type of model not identified")
-              return 0, 0
+              i = 0
+              history = []
 
-          model.compile(optimizer=optimizer, loss=loss, metrics=metrics)
+              while (i < iterates):
+                  print("iteration cycle:", i)
+                  temp = model.fit(self.tr_dt, self.tr_lbl, batch_size=batch_size, epochs=sub_epochs, \
+                                   validation_data=(self.val_dt, self.val_lbl), verbose=1)
+                  history.append(temp.history)
+                  self.__add_remove(model, cutoff)
+                  print('The number of training examples for iterate ' + str(i) + ' is:', len(self.tr_dt))
+                  print('The number of unlabled examples left:', len(self.unlabled))
+                  i += 1
 
-          i = 0
-          history = []
-
-          while(i<iterates):
-              print("iteration cycle:", i)
-              temp = model.fit(self.tr_dt, self.tr_lbl, batch_size=batch_size, epochs=sub_epochs,\
-                              validation_data=(self.val_dt, self.val_lbl), verbose=1)
-              history.append(temp.history)
-              self.__add_remove(model, cutoff)
-              print('The number of training examples for iterate ' + str(i) +' is:', len(self.tr_dt))
-              print('The number of unlabled examples left:', len(self.unlabled))
-              i+=1
+              model.save(name + '_iterative_model_' + str(sub_epochs) + '_' + str(iterates))
+              return history, model
 
 
-          model.save(name + '_iterative_model_' + str(sub_epochs) + '_' + str(iterates))
-          return history, model
+
+
 
       def __add_remove(self, model, cutoff):
           predicitons = model.predict(self.unlabled)
