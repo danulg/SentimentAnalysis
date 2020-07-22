@@ -18,9 +18,8 @@ class TrainNetworks():
         self.unlabled = unsup
 
     def train(self, name='basic', data='labled_only', rate=0.5, lstm_output_size=128, lstm_output_size2=128,
-              dense_output_size=128,
-              sub_epochs=4, iterates=2, epochs=8, batch_size=32, optimizer='adam', loss='binary_crossentropy',
-              metrics=['acc'], verbose=1, cutoff=0.8):
+              dense_output_size=128, sub_epochs=4, iterates=2, epochs=8, batch_size=32, optimizer='adam',\
+              loss='binary_crossentropy', metrics=['acc'], verbose=1, cutoff=0.8):
 
         if name == 'basic':
             model = Basic(rate=rate, dense_output_size=dense_output_size)

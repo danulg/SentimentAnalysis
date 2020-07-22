@@ -5,6 +5,8 @@ import numpy as np
 import dill
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
+import spacy
+from spacy.lang.en.stop_words import STOP_WORDS
 
 class IMDBDataSet():
     def __init__(self):
@@ -19,6 +21,50 @@ class IMDBDataSet():
     def data_augmentation(self):
         #To be added
         pass
+
+    def pickle_data(self, name='train'):
+        labels = []
+        text = []
+        dir = os.path.join(self.imdb_dir, name)
+        if name == 'train' or name == 'test':
+            for label_type in ['pos', 'neg']:
+                dir_name = os.path.join(dir, label_type)
+                for fname in os.listdir(dir_name):
+                    with open(os.path.join(dir_name, fname)) as f:
+                        x = f.read()
+                        x = self.punc_strip(x)
+                        text.append(x)
+
+                    if label_type == 'neg':
+                        labels.append(0)
+                    else:
+                        labels.append(1)
+        # Check number of examples
+            print(type(text), len(text))
+            print(type(labels), len(labels))
+            dill.dump(text, open(name + '_text.pkd', 'wb'))
+            dill.dump(labels, open(name + '_label.pkd', 'wb'))
+
+        elif name == 'unsup':
+            for fname in os.listdir(dir):
+                with open(os.path.join(dir, fname)) as f:
+                    x = f.read()
+                    x = self.punc_strip(x)
+                    text.append(x)
+
+            print(type(text), len(text))
+            dill.dump(text, open('unsup_text.pkd', 'wb'))
+
+
+    #Method for stripping punctuation etc
+    def punc_strip(self, x):
+        x = x.lower()
+        x = re.sub(r'\<br', '', x)
+        x = re.sub(r'\/br\>', '', x)
+        x = re.sub(r'\/\>', '', x)
+        x = re.sub(r'[,.()?\']', '', x)
+        x.strip()
+        return x
 
     #Methods for looking at random data
     def random_review(self, name='train'):
@@ -36,46 +82,6 @@ class IMDBDataSet():
                 print(text[j], ':', labels[j])
                 i+=1
 
-    #Data to more convinient form
-    def labled_to_pickle(self, val='train'):
-        labels = []
-        text = []
-        dir = os.path.join(self.imdb_dir, val)
-        for label_type in ['pos', 'neg']:
-            dir_name = os.path.join(dir, label_type)
-            for fname in os.listdir(dir_name):
-                with open(os.path.join(dir_name, fname)) as f:
-                    _ = f.read()
-                    _ = re.sub(r'\<br', '', _)
-                    _ = re.sub(r'\/br\>', '', _)
-                    _ = re.sub(r'\/\>', '', _)
-                    _ = re.sub(r'[,.()?\']', '', _)
-                    _.strip()
-                    text.append(_)
-                if label_type == 'neg':
-                    labels.append(0)
-                else:
-                    labels.append(1)
-        #Check number of examples
-        print(type(text), len(text))
-        print(type(labels), len(labels))
-        dill.dump(text, open(val+'_text.pkd', 'wb'))
-        dill.dump(labels, open(val+'_label.pkd', 'wb'))
-
-    def unlabled_to_pickle(self):
-        text = []
-        dir = os.path.join(self.imdb_dir, 'unsup')
-        for fname in os.listdir(dir):
-            with open(os.path.join(dir, fname)) as f:
-                _ = f.read()
-                _ = re.sub(r'\<br', '', _)
-                _ = re.sub(r'\/br\>', '', _)
-                _ = re.sub(r'\/\>', '', _)
-                _ = re.sub(r'[,.()?\']', '', _)
-                _.strip()
-                text.append(_)
-        print(type(text), len(text))
-        dill.dump(text, open('unsup_text.pkd', 'wb'))
 
 
     def load_data(self, name='train', is_numpy=True, maxlen=100, max_words=10000):
@@ -83,6 +89,7 @@ class IMDBDataSet():
         lbl = name+'_label.pkd'
         with open(data, 'rb') as f:
             text = dill.load(f)
+
 
         sequences, word_index = self.__tokenize(text, max_words)
 
@@ -135,26 +142,8 @@ class IMDBDataSet():
 
 if __name__ == "__main__":
     data = IMDBDataSet()
-
+    data.preprocess()
     #Run once to create files and comment out
-    # data.labled_to_pickle(val='train')
-    # data.labled_to_pickle(val='test')
-    # data.unlabled_to_pickle()
-
-
-    #Code to check some of the methods
-    d, l, w = data.load_data()
-    w = list(w.items())
-    i = 0
-    while(i<5):
-        print(d[i], 'label is', l[i])
-        print('word', w[i])
-        i+=1
-
-    d, l, w = data.load_data(is_numpy=False)
-    w = list(w.items())
-    i = 0
-    while (i < 5):
-        print(d[i], 'label is', l[i])
-        print('word', w[i])
-        i += 1
+    data.labled_to_pickle(val='train')
+    data.labled_to_pickle(val='test')
+    data.unlabled_to_pickle()

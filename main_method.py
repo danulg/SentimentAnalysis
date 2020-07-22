@@ -41,6 +41,7 @@ tr_lbl = lbl[:20000]
 val_dt = tr[20000:]
 val_lbl = lbl[20000:]
 unsup, *_ = temp.load_data(name='unsup')
+tst_dt, tst_lbl, _ = temp.load_data(name='test')
 
 temp = LoadGloVe(words)
 weights = temp.load_glove()
@@ -65,7 +66,7 @@ sub_epochs = 4
 cutoff = 0.9
 
 # Model parameters with default sizes
-lstm_output_size = 128
+dense_output_size = 64
 lstm_output_size = 128
 lstm_output_size2 = 128
 rate = 0.6
@@ -77,19 +78,20 @@ mod_trainer = TrainNetworks(tr_dt, tr_lbl, val_dt, val_lbl, unsup, weights)
 assert sub_epochs * iterates == epochs
 
 # Train neural network architecture: Basic
-basic_history, basic_model = mod_trainer.train(name='basic', epochs=epochs, sub_epochs=sub_epochs, iterates=iterates, \
-                                               rate=rate, cutoff=cutoff)
-glove_basic_history, glove_basic_model = mod_trainer.train(name='glove_basic', epochs=epochs, sub_epochs=sub_epochs,
-                                                           iterates=iterates, \
-                                                           rate=rate, cutoff=cutoff)
-iter_basic_history, basic_iter_model = mod_trainer.train(name='basic', data='unlabled_considered', \
-                                                         sub_epochs=sub_epochs, iterates=iterates, rate=rate,
-                                                         cutoff=cutoff)
+history, model = mod_trainer.train(name='basic', epochs=epochs, sub_epochs=sub_epochs, iterates=iterates, rate=rate,
+                                   dense_output_size=dense_output_size, cutoff=cutoff)
+glove_history, glove_model = mod_trainer.train(name='glove_basic', epochs=epochs, sub_epochs=sub_epochs, iterates=iterates,
+                                               dense_output_size=dense_output_size, rate=rate, cutoff=cutoff)
+iter_history, iter_model = mod_trainer.train(name='basic', data='unlabled_considered', sub_epochs=sub_epochs, iterates=iterates,
+                                             rate=rate, dense_output_size=dense_output_size, cutoff=cutoff)
+
+model.evaluate(tst_dt, tst_lbl)
+glove_model.evaluate(tst_dt, tst_lbl)
+iter_model.evaluate(tst_dt, tst_lbl)
 
 # Gather histories and save
-
-history = [basic_history, glove_basic_history, iter_basic_history]
-dill.dump(history, open('history_1.pkd', 'wb'))
+history = [history, glove_history, iter_history]
+dill.dump(history, open('history_2.pkd', 'wb'))
 
 # Train neural network architecture: bidirectional. Rate is currently redundant as it has no dropout
 # bidirectional_history, bidirectional_model = mod_trainer.train(name='bidirectional', epochs=epochs, rate=rate)
