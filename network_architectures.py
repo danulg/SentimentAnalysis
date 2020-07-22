@@ -13,14 +13,14 @@ class SentimentAnalysisBasic(Sequential):
         self.add(Dense(1, activation='sigmoid'))
 
 class SentimentAnalysisBidirectional(Sequential): #Should have 1D CNN and dropout or batchnorm
-    def __init__(self, max_words=10000, embedding_dim=100, rate=0.5, lstm_1=64, lstm_2=64, maxlen=100):
+    def __init__(self, max_words=10000, embedding_dim=100, rate=0.5, lstm_output_size=64, lstm_output_size2=64, maxlen=100):
         super().__init__()
         self.add(Input(shape=(None,), dtype="int32"))
         # Embed each integer in a 100-dimensional vector
         self.add(Embedding(max_words, embedding_dim))
         # Add 2 bidirectional LSTMs
-        self.add(Bidirectional(LSTM(lstm_1, return_sequences=True)))
-        self.add(Bidirectional(LSTM(lstm_2)))
+        self.add(Bidirectional(LSTM(lstm_output_size, return_sequences=True)))
+        self.add(Bidirectional(LSTM(lstm_output_size2)))
         # Add a classifier
         self.add(Dense(1, activation="sigmoid"))
 
