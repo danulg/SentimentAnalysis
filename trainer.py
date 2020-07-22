@@ -17,18 +17,20 @@ class TrainNetworks():
           self.glove_weights = weights
           self.unlabled = unsup
 
-      def train(self, name='basic', data='labled_only', rate=0.5, sub_epochs=5, iterates=2, epochs=10, batch_size=32,  optimizer='adam',\
-                loss='binary_crossentropy', metrics=['acc'], verbose=1, cutoff=0.8):
+      def train(self, name='basic', data='labled_only', rate=0.5, lstm_output_size=128, lstm_output_size2=128, dense_output_size=128,
+                sub_epochs=4, iterates=2, epochs=8, batch_size=32, optimizer='adam', loss='binary_crossentropy',
+                metrics=['acc'], verbose=1, cutoff=0.8):
+
           if name == 'basic':
-              model = Basic(rate=rate)
+              model = Basic(rate=rate, dense_output_size=dense_output_size)
 
           elif name == 'glove_basic':
-              model = Basic(rate=rate)
+              model = Basic(rate=rate, dense_output_size=dense_output_size)
               model.layers[0].set_weights([self.glove_weights])
               model.layers[0].trainable = False
 
           elif name == 'bidirectional':
-              model = Bidirectional(rate=rate)
+              model = Bidirectional(rate=rate, lstm_output_size=lstm_output_size, lstm_output_size2=lstm_output_size2)
 
           elif name == 'glove_bidirectional':
               model = Bidirectional(rate=rate)
@@ -57,31 +59,32 @@ class TrainNetworks():
 
           model.compile(optimizer=optimizer, loss=loss, metrics=metrics)
 
-          if data == 'labled':
+
+          if data == 'labled_only':
+              save_name = str(cutoff)+'_' + name + '_model_' + str(sub_epochs) + '_' + str(iterates) + '_' + str(dense_output_size) + '_'\
+                          + str(lstm_output_size) + '_' + str(lstm_output_size2)
               history = model.fit(self.tr_dt, self.tr_lbl, epochs=epochs, batch_size=batch_size, validation_data=(self.val_dt, \
                                 self.val_lbl), verbose=verbose)
-              model.save(name+'_model_'+str(epochs))
+              model.save(save_name)
               return history.history, model
 
-          else:
+          elif data=='unlabled_considered':
               i = 0
               history = []
-
+              save_name = str(cutoff)+'_'+name + '_itermodel_' + str(sub_epochs) + '_' + str(iterates) + '_' + str(dense_output_size) +\
+                          '_' + str(lstm_output_size) + '_' + str(lstm_output_size2)
               while (i < iterates):
-                  print("iteration cycle:", i)
+                  print("iteration cycle:", i+1)
                   temp = model.fit(self.tr_dt, self.tr_lbl, batch_size=batch_size, epochs=sub_epochs, \
-                                   validation_data=(self.val_dt, self.val_lbl), verbose=1)
+                                   validation_data=(self.val_dt, self.val_lbl), verbose=verbose)
                   history.append(temp.history)
                   self.__add_remove(model, cutoff)
                   print('The number of training examples for iterate ' + str(i) + ' is:', len(self.tr_dt))
                   print('The number of unlabled examples left:', len(self.unlabled))
                   i += 1
 
-              model.save(name + '_iterative_model_' + str(sub_epochs) + '_' + str(iterates))
+              model.save(save_name)
               return history, model
-
-
-
 
 
       def __add_remove(self, model, cutoff):

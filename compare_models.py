@@ -1,7 +1,6 @@
 #Draw images using bokeh on train / test accuracies
 from matplotlib import pyplot as plt
-from bokeh.plotting import figure, show
-from bokeh.io import export_png
+from bokeh.plotting import figure, show, output_file
 import dill
 from collections import Counter
 from wordcloud import WordCloud, STOPWORDS
@@ -74,8 +73,8 @@ class PlotCurves():
                 i+=1
 
         # show and save the results
-        name = str(sub_epochs)+'_'+str(iterates)+'.png'
-        export_png(fig, filename=name)
+        name = str(sub_epochs)+'_'+str(iterates)+'.html'
+        output_file(name)
         show(fig)
 
     def draw_word_cloud(self):
@@ -96,10 +95,14 @@ class PlotCurves():
         plt.show()
         pass
 
+    def draw_bar_chart(self, word):
+        pass
+
+
 if __name__=="__main__":
     curves = PlotCurves()
-    # curves.draw(dill.load(open('history_1.pkd', 'rb')), sub_epochs=sub_epochs, iterates=iterates)
-    #curves.bokeh_draw(dill.load(open('history_bidirectional.pkd', 'rb')), sub_epochs=4, iterates=4)
-    dictionary = dill.load(open('history_bidirectional.pkd', 'rb'))
+    curves.bokeh_draw(dill.load(open('history_1.pkd', 'rb')), sub_epochs=4, iterates=2)
 
+    model_histories = dill.load(open('history_bidirectional_4.pkd', 'rb'))
+    curves.bokeh_draw(model_histories, sub_epochs=8, iterates=2)
     pass
