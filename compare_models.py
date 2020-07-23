@@ -2,7 +2,6 @@
 from matplotlib import pyplot as plt
 from bokeh.plotting import figure, show, output_file
 import dill
-from collections import Counter
 from wordcloud import WordCloud, STOPWORDS
 
 class PlotCurves():
@@ -77,13 +76,14 @@ class PlotCurves():
         output_file(name)
         show(fig)
 
-    def draw_word_cloud(self):
-        with open('train_text.pkd', 'rb') as f:
+    def draw_word_cloud(self, name='train'):
+        name = name+'_text.pkd'
+        with open(name, 'rb') as f:
             text = dill.load(f)
 
         stopwords = set(STOPWORDS)
         stopwords.update(
-            ["movie", "hi", 'film', 'wa', 'this', 'this movie', 'whole', "the whole", 'thi', 'story', 'ha'])
+            ["movie", "hi", 'film', 'wa', 'this', 'this movie', 'whole', "the whole", 'thi', 'story', 'ha', 'doe'])
         text = " ".join(review for review in text)
         text = text.lower()
         # Create and generate a word cloud image:
@@ -101,8 +101,9 @@ class PlotCurves():
 
 if __name__=="__main__":
     curves = PlotCurves()
-    curves.bokeh_draw(dill.load(open('history_1.pkd', 'rb')), sub_epochs=4, iterates=2)
+    # curves.bokeh_draw(dill.load(open('history_1.pkd', 'rb')), sub_epochs=4, iterates=2)
+    curves.draw_word_cloud(name='unsup')
 
-    model_histories = dill.load(open('history_bidirectional_4.pkd', 'rb'))
-    curves.bokeh_draw(model_histories, sub_epochs=8, iterates=2)
+    #model_histories = dill.load(open('history_bidirectional_4.pkd', 'rb'))
+    #curves.bokeh_draw(model_histories, sub_epochs=8, iterates=2)
     pass

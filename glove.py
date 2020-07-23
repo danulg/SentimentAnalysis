@@ -6,7 +6,7 @@ class LoadGloVe():
     def __init__(self, words):
         super().__init__()
         # self.glove_dir = '/home/danul-g/IMDB/glove.6B'
-        self.glove_dir = '/home/danulg/IMDB/glove.6B'
+        self.glove_dir = './IMDB/glove.6B'
         self.embeddings_index = {}
         self.word_index = words
 

@@ -17,7 +17,7 @@ class TrainNetworks():
         self.glove_weights = weights
         self.unlabled = unsup
 
-    def train(self, name='basic', data='labled_only', rate=0.5, lstm_output_size=128, lstm_output_size2=128,
+    def train(self, name='basic', data='labled_only', rate=0.5, lstm_output_size=512, lstm_output_size2=512,
               dense_output_size=128, sub_epochs=4, iterates=2, batch_size=32, optimizer='adam',\
               loss='binary_crossentropy', metrics=['acc'], verbose=1, cutoff=0.8):
 

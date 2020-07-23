@@ -3,7 +3,7 @@ from tensorflow.keras.layers import LSTM, Dense, Conv1D, Softmax, Flatten, Embed
 from tensorflow.keras.models import Sequential
 
 class SentimentAnalysisBasic(Sequential):
-    def __init__(self, rate=0.5, max_words=10000, embedding_dim=100, maxlen=100, dense_output_size=128):
+    def __init__(self, rate=0.5, max_words=30000, embedding_dim=100, maxlen=200, dense_output_size=128):
         super().__init__()
         self.add(Embedding(max_words, embedding_dim, input_length=maxlen))
         self.add(Dropout(rate))
@@ -13,7 +13,7 @@ class SentimentAnalysisBasic(Sequential):
         self.add(Dense(1, activation='sigmoid'))
 
 class SentimentAnalysisBidirectional(Sequential): #Should have 1D CNN and dropout or batchnorm
-    def __init__(self, max_words=10000, embedding_dim=100, rate=0.5, lstm_output_size=512, lstm_output_size2=512, maxlen=100):
+    def __init__(self, max_words=30000, embedding_dim=100, rate=0.5, lstm_output_size=512, lstm_output_size2=512, maxlen=200):
         super().__init__()
         self.add(Input(shape=(None,), dtype="int32"))
         # Embed each integer in a 100-dimensional vector
@@ -28,7 +28,7 @@ class SentimentAnalysisBidirectional(Sequential): #Should have 1D CNN and dropou
         self.add(Dense(1, activation="sigmoid"))
 
 class SentimentAnalysisSingleConv1D(Sequential):
-    def __init__(self, max_words=10000, embedding_dim=100, maxlen=100, rate=0.5, filters=64, kernel_size=5, strides=1, pool_size=4,\
+    def __init__(self, max_words=30000, embedding_dim=100, maxlen=200, rate=0.5, filters=64, kernel_size=5, strides=1, pool_size=4,\
                  lstm_output_size=128):
         super().__init__()
         self.add(Embedding(max_words, embedding_dim, input_length=maxlen))
@@ -41,7 +41,7 @@ class SentimentAnalysisSingleConv1D(Sequential):
         self.add(Dense(1, activation='sigmoid'))
 
 class SentimentAnalysisMultipleConv1D(Sequential):
-    def __init__(self, max_words=10000, embedding_dim=100, maxlen=100, rate=0.5, filters=64, kernel_size=5, strides=1, pool_size=4,\
+    def __init__(self, max_words=30000, embedding_dim=100, maxlen=200, rate=0.5, filters=64, kernel_size=5, strides=1, pool_size=4,\
                  lstm_output_size=128):
         super().__init__()
         self.add(Embedding(max_words, embedding_dim, input_length=maxlen))
@@ -57,7 +57,7 @@ class SentimentAnalysisMultipleConv1D(Sequential):
         self.add(Dense(1, activation='sigmoid'))
 
 class SentimentAnalysisMultipleConv1DNoLSTM(Sequential):
-    def __init__(self, max_words=10000, embedding_dim=100, maxlen=100, rate=0.5, filters=128, kernel_size=5, strides=1,
+    def __init__(self, max_words=30000, embedding_dim=100, maxlen=200, rate=0.5, filters=128, kernel_size=5, strides=1,
                      pool_size=4, dense_output_size=128):
         super().__init__()
         self.add(Input(shape=(None,), dtype="int64"))
