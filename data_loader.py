@@ -159,10 +159,10 @@ class IMDBDataSet():
 if __name__ == "__main__":
     data = IMDBDataSet()
 
-    #Run once to create files and comment out
-    # data.pickle_data(name='train')
-    # data.pickle_data(name='test')
-    # data.pickle_data(name='unsup')
+    #Create files for easier loading
+    data.pickle_data(name='train')
+    data.pickle_data(name='test')
+    data.pickle_data(name='unsup')
 
     data.pickle_data_stopwords(name='train')
     data.pickle_data_stopwords(name='test')
