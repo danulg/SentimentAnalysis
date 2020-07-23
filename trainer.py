@@ -18,9 +18,10 @@ class TrainNetworks():
         self.unlabled = unsup
 
     def train(self, name='basic', data='labled_only', rate=0.5, lstm_output_size=128, lstm_output_size2=128,
-              dense_output_size=128, sub_epochs=4, iterates=2, epochs=8, batch_size=32, optimizer='adam',\
+              dense_output_size=128, sub_epochs=4, iterates=2, batch_size=32, optimizer='adam',\
               loss='binary_crossentropy', metrics=['acc'], verbose=1, cutoff=0.8):
 
+        epochs = sub_epochs * iterates
         if name == 'basic':
             model = Basic(rate=rate, dense_output_size=dense_output_size)
 
@@ -61,7 +62,7 @@ class TrainNetworks():
 
         if data == 'labled_only':
             save_name = str(cutoff) + '_' + name + '_model_' + str(sub_epochs) + '_' + str(iterates) + '_' + str(
-                dense_output_size) + '_' \
+                dense_output_size) + '_' + str(rate) + '_'\
                         + str(lstm_output_size) + '_' + str(lstm_output_size2) +'.h5'
             history = model.fit(self.tr_dt, self.tr_lbl, epochs=epochs, batch_size=batch_size,
                                 validation_data=(self.val_dt, \
@@ -73,7 +74,7 @@ class TrainNetworks():
             i = 0
             history = []
             save_name = str(cutoff) + '_' + name + '_itermodel_' + str(sub_epochs) + '_' + str(iterates) + '_' + str(
-                dense_output_size) + \
+                dense_output_size) + str(rate) + \
                         '_' + str(lstm_output_size) + '_' + str(lstm_output_size2) + '.h5'
             while (i < iterates):
                 print("iteration cycle:", i + 1)

@@ -12,7 +12,6 @@ import random
 random.seed(14)
 
 import numpy as np
-import numpy as np
 
 np.random.seed(15)
 
@@ -60,30 +59,34 @@ strides = 2
 pool_size = 4
 
 # Parameters for training
-epochs = 12
-iterates = 3
+iterates = 2
 sub_epochs = 4
-cutoff = 0.9
+cutoff = 0.8
 
 # Model parameters with default sizes
-dense_output_size = 64
+dense_output_size = 32
 lstm_output_size = 128
 lstm_output_size2 = 128
-rate = 0.6
+rate = 0.2
 
 # # Create model trainer
 mod_trainer = TrainNetworks(tr_dt, tr_lbl, val_dt, val_lbl, unsup, weights)
 
-# Verify that epochs, iterates, sub epochs match up
-assert sub_epochs * iterates == epochs
-
 # Train neural network architecture: Basic
-history, model = mod_trainer.train(name='basic', epochs=epochs, sub_epochs=sub_epochs, iterates=iterates, rate=rate,
-                                   dense_output_size=dense_output_size, cutoff=cutoff)
-glove_history, glove_model = mod_trainer.train(name='glove_basic', epochs=epochs, sub_epochs=sub_epochs, iterates=iterates,
-                                               dense_output_size=dense_output_size, rate=rate, cutoff=cutoff)
-iter_history, iter_model = mod_trainer.train(name='basic', data='unlabled_considered', sub_epochs=sub_epochs, iterates=iterates,
-                                             rate=rate, dense_output_size=dense_output_size, cutoff=cutoff)
+# history, model = mod_trainer.train(name='basic', epochs=epochs, sub_epochs=sub_epochs, iterates=iterates, rate=rate,
+#                                    dense_output_size=dense_output_size, cutoff=cutoff)
+# glove_history, glove_model = mod_trainer.train(name='glove_basic', epochs=epochs, sub_epochs=sub_epochs, iterates=iterates,
+#                                                dense_output_size=dense_output_size, rate=rate, cutoff=cutoff)
+# iter_history, iter_model = mod_trainer.train(name='basic', data='unlabled_considered', sub_epochs=sub_epochs, iterates=iterates,
+#                                              rate=rate, dense_output_size=dense_output_size, cutoff=cutoff)
+
+
+
+# Train neural network architecture: bidirectional. Rate is currently redundant as it has no dropout
+history, model = mod_trainer.train(name='bidirectional', sub_epochs=sub_epochs, iterates=iterates, rate=rate)
+glove_history, glove_model = mod_trainer.train(name='glove_bidirectional', sub_epochs=sub_epochs, iterates=iterates, rate=rate)
+iter_history, iter_model = mod_trainer.train(name='bidirectional', data='unlabled_considered', sub_epochs=sub_epochs,\
+                                                       iterates=iterates, rate=rate, cutoff=cutoff)
 
 model.evaluate(tst_dt, tst_lbl)
 glove_model.evaluate(tst_dt, tst_lbl)
@@ -93,20 +96,11 @@ iter_model.evaluate(tst_dt, tst_lbl)
 history = [history, glove_history, iter_history]
 dill.dump(history, open('history_2.pkd', 'wb'))
 
-# Train neural network architecture: bidirectional. Rate is currently redundant as it has no dropout
-# bidirectional_history, bidirectional_model = mod_trainer.train(name='bidirectional', epochs=epochs, rate=rate)
-# glove_bidirectional_history, glove_bidirectional_model = mod_trainer.train(name='glove_bidirectional', epochs=epochs, rate=rate)
-# iter_bidirectional_history, bidirectional_iter_model = mod_trainer.train_unlabled(name='bidirectional', sub_epochs=sub_epochs,\
-#                                                        iterates=iterates, rate=rate, cutoff=cutoff)
 
-
-# Gather histories and save
-# history = [bidirectional_history, glove_bidirectional_history, iter_bidirectional_history]
-# dill.dump(history, open('history_bidirectional_4.pkd', 'wb'))
 
 # Code: Evaluate the models
 
 # Draw plots
 curves = PlotCurves()
 # curves.draw(dill.load(open('history_1.pkd', 'rb')), sub_epochs=sub_epochs, iterates=iterates)
-curves.bokeh_draw(dill.load(open('history_1.pkd', 'rb')), sub_epochs=sub_epochs, iterates=iterates)
+curves.bokeh_draw(dill.load(open('history_2.pkd', 'rb')), sub_epochs=sub_epochs, iterates=iterates)
