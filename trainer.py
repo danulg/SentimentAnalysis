@@ -84,8 +84,10 @@ class TrainNetworks():
                 print('The number of training examples for iterate ' + str(i) + ' is:', len(self.tr_dt))
                 print('The number of unlabled examples left:', len(self.unlabled))
                 i += 1
+
             # Code for saving the model: Cannot load models this way: known tensorflow error
             # model.save(save_name)
+
             model.save_weights(save_name)
             return history, model
 
