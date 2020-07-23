@@ -13,7 +13,7 @@ class SentimentAnalysisBasic(Sequential):
         self.add(Dense(1, activation='sigmoid'))
 
 class SentimentAnalysisBidirectional(Sequential): #Should have 1D CNN and dropout or batchnorm
-    def __init__(self, max_words=10000, embedding_dim=100, rate=0.5, lstm_output_size=128, lstm_output_size2=128, maxlen=100):
+    def __init__(self, max_words=10000, embedding_dim=100, rate=0.5, lstm_output_size=512, lstm_output_size2=512, maxlen=100):
         super().__init__()
         self.add(Input(shape=(None,), dtype="int32"))
         # Embed each integer in a 100-dimensional vector
@@ -22,6 +22,9 @@ class SentimentAnalysisBidirectional(Sequential): #Should have 1D CNN and dropou
         self.add(Bidirectional(LSTM(lstm_output_size, return_sequences=True)))
         self.add(Bidirectional(LSTM(lstm_output_size2)))
         # Add a classifier
+        self.add(Flatten())
+        self.add(Dense(256, activation='relu'))
+        self.add(Dropout(rate))
         self.add(Dense(1, activation="sigmoid"))
 
 class SentimentAnalysisSingleConv1D(Sequential):
