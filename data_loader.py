@@ -6,7 +6,7 @@ import dill
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 import spacy
-from spacy.lang.en.stop_words import STOP_WORDS
+
 
 class IMDBDataSet():
     def __init__(self):
@@ -16,6 +16,8 @@ class IMDBDataSet():
         self.love_sub = {'love', 'adore'}
         self.great_sub = {'great', 'really nice'}
         self.imdb_dir = '/home/danulg/IMDB'
+        self.nlp = spacy.load('en_core_web_sm')
+        self.stopwords = self.nlp.Defaults.stop_words
 
     #Data augmentation methods
     def data_augmentation(self):
@@ -69,7 +71,7 @@ class IMDBDataSet():
     #Methods for looking at random data
     def random_review(self, name='train'):
         name = name + '_text.pkd'
-        text, labels = self.load_data(is_numpy=False)
+        text, labels,_ = self.load_data(is_numpy=False)
         print(name, len(text))
         i = 0
 
@@ -82,39 +84,53 @@ class IMDBDataSet():
                 print(text[j], ':', labels[j])
                 i+=1
 
+    def remove_stopwords(self, sentence):
+        tokens = sentence.split(" ")
+        tokens_filtered = [word for word in tokens if not word in self.stopwords]
+        return (" ").join(tokens_filtered)
 
 
-    def load_data(self, name='train', is_numpy=True, maxlen=100, max_words=10000):
-        data = name+'_text.pkd'
-        lbl = name+'_label.pkd'
-        with open(data, 'rb') as f:
+    def pickle_data_stopwords(self, name='train'):
+        save_name = name + '_text_stopwords.pkd'
+        name = name + '_text.pkd'
+        with open(name, 'rb') as f:
             text = dill.load(f)
 
+        text = [self.remove_stopwords(x) for x in text]
 
-        sequences, word_index = self.__tokenize(text, max_words)
+        dill.dump(text, open(save_name, 'wb'))
 
-        if name == 'train' or name == 'test' or name == 'augmented':
+    def load_data(self, name='train', is_numpy=True, maxlen=100, max_words=10000):
+        #Track labels as required
+        if name == 'train' or name == 'test':
+            lbl = name + '_label.pkd'
             with open(lbl, 'rb') as f:
                 labels = dill.load(f)
+        else:
+            labels = []
 
-            if is_numpy:
-                data, labels = self.__data_to_numpy(sequences, labels, maxlen)
-                return data, labels, word_index
-            else:
-                return text, labels, word_index
+        #Format data based on return type
+        if is_numpy:
+            name = name + '_text_stopwords.pkd'
+            with open(name, 'rb') as f:
+                text = dill.load(f)
 
-        elif name == 'unsup':
-            if is_numpy:
-                data, labels = self.__data_to_numpy(sequences, [],  maxlen)
-                return data, labels, word_index
-            else:
-                return text, [], word_index
+            sequences, word_index = self.__tokenize(text, max_words=max_words)
+            data, labels = self.__data_to_numpy(sequences, labels, maxlen)
+            return data, labels, word_index
 
         else:
-            print('data set not found')
-            return []
+            name = name + '_text.pkd'
+            with open(name, 'rb') as f:
+                text = dill.load(f)
 
-    def __data_to_numpy(self, sequences, labels, word_index, maxlen=100):
+            _, word_index = self.__tokenize(text, max_words=max_words)
+            return text, labels, word_index
+
+
+
+
+    def __data_to_numpy(self, sequences, labels, maxlen=100):
         #Convert to numpy
         data = pad_sequences(sequences, maxlen=maxlen)
         print('Shape of data tensor:', data.shape)
@@ -142,8 +158,13 @@ class IMDBDataSet():
 
 if __name__ == "__main__":
     data = IMDBDataSet()
-    data.preprocess()
+
     #Run once to create files and comment out
-    data.labled_to_pickle(val='train')
-    data.labled_to_pickle(val='test')
-    data.unlabled_to_pickle()
+    # data.pickle_data(name='train')
+    # data.pickle_data(name='test')
+    # data.pickle_data(name='unsup')
+
+    data.pickle_data_stopwords(name='train')
+    data.pickle_data_stopwords(name='test')
+    data.pickle_data_stopwords(name='unsup')
+
