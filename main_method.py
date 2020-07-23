@@ -32,6 +32,29 @@ tf.config.experimental.set_virtual_device_configuration(gpus[0], [tf.config.expe
 logical = tf.config.experimental.list_logical_devices('GPU')
 print(logical[0])
 
+# Various relavant parameters across the classes
+# Shared by all classes Data Loader, Glove, Network Architectures
+maxlen = 200
+max_words = 30000
+embedding_dim = 100
+
+# Specific to Convolutional archtecture of SingleConv1D
+filters = 64
+kernel_size = 5
+strides = 2
+pool_size = 4
+
+# Parameters for training
+iterates = 2
+sub_epochs = 8
+cutoff = 0.85
+
+# Model parameters with default sizes
+dense_output_size = 32
+lstm_output_size = 512
+lstm_output_size2 = 512
+rate = 0.2
+
 # Load and pratition data sets.
 temp = IMDBDataSet()
 tr, lbl, words = temp.load_data()
@@ -44,30 +67,6 @@ tst_dt, tst_lbl, _ = temp.load_data(name='test')
 
 temp = LoadGloVe(words)
 weights = temp.load_glove()
-
-# Various relavant parameters across the classes
-# Shared by all classes Data Loader, Glove, Network Architectures
-maxlen = 100
-max_words = 10000
-embedding_dim = 100
-max_words = max_words  # i.e. the parameters for glove and data loader should match
-
-# Specific to Convolutional archtecture of SingleConv1D
-filters = 64
-kernel_size = 5
-strides = 2
-pool_size = 4
-
-# Parameters for training
-iterates = 2
-sub_epochs = 4
-cutoff = 0.8
-
-# Model parameters with default sizes
-dense_output_size = 32
-lstm_output_size = 128
-lstm_output_size2 = 128
-rate = 0.2
 
 # # Create model trainer
 mod_trainer = TrainNetworks(tr_dt, tr_lbl, val_dt, val_lbl, unsup, weights)
