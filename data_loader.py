@@ -100,7 +100,7 @@ class IMDBDataSet():
 
         dill.dump(text, open(save_name, 'wb'))
 
-    def load_data(self, name='train', is_numpy=True, maxlen=100, max_words=10000):
+    def load_data(self, name='train', is_numpy=True, has_stopwords=True, maxlen=100, max_words=10000):
         #Track labels as required
         if name == 'train' or name == 'test':
             lbl = name + '_label.pkd'
@@ -111,7 +111,12 @@ class IMDBDataSet():
 
         #Format data based on return type
         if is_numpy:
-            name = name + '_text_stopwords.pkd'
+            if has_stopwords:
+                name = name + '_text.pkd'
+
+            else:
+                name = name + '_text_nostopwords.pkd'
+
             with open(name, 'rb') as f:
                 text = dill.load(f)
 
