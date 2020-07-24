@@ -72,24 +72,4 @@ class SentimentAnalysisMultipleConv1DNoLSTM(Sequential):
         self.add(Dropout(rate))
         self.add(Dense(1, activation="sigmoid"))
 
-#GANs
-class DiscrimintorGan(Sequential):
-    def __init__(self):
-        super().__init__()
-        self.layer0 = self.add(Input)
-        self.layer1 = self.add(Conv1D)
-        self.layer2 = self.add(LSTM)
-        self.layer3 = self.add(Flatten)
-        self.layer4 = self.add(Dense)
-        self.layer5 = self.add(Softmax)
-
-class GeneratorGan(Sequential):
-    def __init__(self):
-        super().__init__()
-        self.layer0 = self.add(Input)
-        self.layer1 = self.add(Conv1D)
-        self.layer2 = self.add(LSTM)
-        self.layer3 = self.add(Flatten)
-        self.layer4 = self.add(Dense)
-        self.layer5 = self.add(Softmax)
 

@@ -1,8 +1,8 @@
 import numpy as np
-from network_architectures import SentimentAnalysisBasic as Basic
-from network_architectures import SentimentAnalysisBidirectional as Bidirectional
-from network_architectures import SentimentAnalysisSingleConv1D as SingleConv1D
-from network_architectures import SentimentAnalysisMultipleConv1D as MultipleConv1D
+from basicnn import SentimentAnalysisBasic as Basic
+from basicnn import SentimentAnalysisBidirectional as Bidirectional
+from basicnn import SentimentAnalysisSingleConv1D as SingleConv1D
+from basicnn import SentimentAnalysisMultipleConv1D as MultipleConv1D
 
 
 class TrainNetworks():

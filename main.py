@@ -16,10 +16,10 @@ import numpy as np
 np.random.seed(15)
 
 # import rest of relavant libraries
-from data_loader import IMDBDataSet
+from dataloader import IMDBDataSet
 from trainer import TrainNetworks
 from glove import LoadGloVe
-from compare_models import PlotCurves
+from compmod import PlotCurves
 import dill
 
 # Prep GPU:

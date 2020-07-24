@@ -3,6 +3,7 @@ from matplotlib import pyplot as plt
 from bokeh.plotting import figure, show, output_file
 import dill
 from wordcloud import WordCloud, STOPWORDS
+from dataloader import IMDBDataSet
 
 class PlotCurves():
     def __init__(self):
@@ -77,9 +78,8 @@ class PlotCurves():
         show(fig)
 
     def draw_word_cloud(self, name='train'):
-        name = name+'_text.pkd'
-        with open(name, 'rb') as f:
-            text = dill.load(f)
+        imdb = IMDBDataSet()
+        text, *_ = imdb.load_data(name=name, is_numpy=False)
 
         stopwords = set(STOPWORDS)
         stopwords.update(

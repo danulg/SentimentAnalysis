@@ -1,6 +1,6 @@
 import os
 import numpy as np
-from data_loader import IMDBDataSet
+from dataloader import IMDBDataSet
 
 class LoadGloVe():
     def __init__(self, words):
