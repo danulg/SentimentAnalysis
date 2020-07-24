@@ -46,18 +46,18 @@ pool_size = 4
 
 # Parameters for training
 iterates = 2
-sub_epochs = 8
+sub_epochs = 12
 cutoff = 0.85
 
 # Model parameters with default sizes
 dense_output_size = 32
 lstm_output_size = 512
 lstm_output_size2 = 512
-rate = 0.2
+rate = 0.4
 
 # Load and pratition data sets.
 temp = IMDBDataSet()
-tr, lbl, words = temp.load_data()
+tr, lbl, words = temp.load_data(name='train')
 tr_dt = tr[:20000]
 tr_lbl = lbl[:20000]
 val_dt = tr[20000:]
@@ -66,7 +66,7 @@ unsup, *_ = temp.load_data(name='unsup')
 tst_dt, tst_lbl, _ = temp.load_data(name='test')
 
 temp = LoadGloVe(words)
-weights = temp.load_glove()
+weights = temp.load_glove(max_words=max_words)
 
 # # Create model trainer
 mod_trainer = TrainNetworks(tr_dt, tr_lbl, val_dt, val_lbl, unsup, weights)
@@ -87,7 +87,7 @@ glove_history, glove_model = mod_trainer.train(name='glove_bidirectional', sub_e
 iter_history, iter_model = mod_trainer.train(name='bidirectional', data='unlabled_considered', sub_epochs=sub_epochs,\
                                                        iterates=iterates, rate=rate, cutoff=cutoff)
 
-model.evaluate(tst_dt, tst_lbl)
+#model.evaluate(tst_dt, tst_lbl)
 glove_model.evaluate(tst_dt, tst_lbl)
 iter_model.evaluate(tst_dt, tst_lbl)
 

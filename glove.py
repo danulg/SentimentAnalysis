@@ -10,7 +10,7 @@ class LoadGloVe():
         self.embeddings_index = {}
         self.word_index = words
 
-    def load_glove(self, max_words=10000, embedding_dim = 100):
+    def load_glove(self, max_words=30000, embedding_dim=100):
         file_name = 'glove.6B.'+str(embedding_dim)+'d.txt'
         with open(os.path.join(self.glove_dir, file_name)) as f:
             for line in f:
