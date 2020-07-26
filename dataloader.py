@@ -34,7 +34,6 @@ class IMDBDataSet():
                 for fname in os.listdir(dir_name):
                     with open(os.path.join(dir_name, fname)) as f:
                         x = f.read()
-                        x = self.__punc_strip(x)
                         text.append(x)
 
                     if label_type == 'neg':
@@ -48,7 +47,6 @@ class IMDBDataSet():
             for fname in os.listdir(dir):
                 with open(os.path.join(dir, fname)) as f:
                     x = f.read()
-                    x = self.__punc_strip(x)
                     text.append(x)
 
             return text, labels
@@ -56,29 +54,50 @@ class IMDBDataSet():
 
 
     #Method for stripping punctuation etc
-    def __punc_strip(self, x):
-        x = x.lower()
-        x = re.sub(r'\<br', '', x)
-        x = re.sub(r'\/br\>', '', x)
-        x = re.sub(r'\/\>', '', x)
-        x = re.sub(r'[,.()?\']', '', x)
-        x.strip()
+    def __punc_strip(self, x, strip_br=True, lower=True, rem_punc=True):
+        if lower:
+            x = x.lower()
+
+        if strip_br:
+            x = re.sub(r'\<br', '', x)
+            x = re.sub(r'\/br\>', '', x)
+
+        if rem_punc:
+            x = re.sub(r'\/\>', '', x)
+            x = re.sub(r'[,.()?\']', '', x)
+            x.strip()
         return x
 
     #Methods for looking at random data
-    def random_review(self, name='train'):
+    def read_review(self, name='train', num=10, is_random=True):
         text, labels = self.__load_from_source(name=name)
+        text = [self.__punc_strip(x, lower=False) for x in text]
         print(name, len(text))
         i = 0
 
-        while(i<10):
-            j = random.randint(0, len(text) - 1)
-            if name == 'unsup':
-                print(text[j], ': unlabled')
-                i+=1
-            else:
-                print(text[j], ':', labels[j])
-                i+=1
+        if num<0 or num>len(text):
+            num = 100
+
+        if is_random:
+            while(i<num):
+                j = random.randint(0, len(text) - 1)
+                if name == 'unsup':
+                    print(text[j], ': unlabled')
+                    i+=1
+                else:
+                    print(text[j], ':', labels[j])
+                    i+=1
+
+        else:
+            while(i<num):
+                if name == 'unsup':
+                    print(text[i], ': unlabled')
+                    i += 1
+
+                else:
+                    print(text[i], ':', labels[i])
+                    i += 1
+
 
     def __remove_stopwords(self, text):
         stripped_text = []
@@ -91,8 +110,9 @@ class IMDBDataSet():
         return stripped_text
 
     def load_data(self, name='train', is_numpy=True, has_stopwords=True, maxlen=200, max_words=30000):
-        #Format data based on return type
+        #Format data based on return type, strip punctuation
         text, labels = self.__load_from_source(name=name)
+        text = [self.__punc_strip(x) for x in text]
 
         if is_numpy:
             if not has_stopwords:
@@ -139,6 +159,7 @@ class IMDBDataSet():
 
 if __name__ == "__main__":
     data = IMDBDataSet()
+    data.read_review(num=100)
 
 
 
