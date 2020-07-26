@@ -2,7 +2,6 @@ import re
 import random
 import os
 import numpy as np
-import dill
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 import spacy
@@ -19,6 +18,7 @@ class IMDBDataSet():
         self.nlp = spacy.load('en_core_web_sm')
         self.max_words = max_words
         self.max_len = max_len
+        self.tokenizer = Tokenizer(num_words=self.max_words)
         self.stopwords = {'a', 'and', 'for', 'of', 'that', 'it', 'are', 'i', 'am', 'on', 'this', 'the', 'try',
                           'to', 'in', 'an', 'these', 'his', 'her', 'in', 'if', 'as', 'he', 'she', 'me', 'i.e.', 'i\'ll',
                           'e.g.', 'at', 'e', 'g', 'my', 'i\'m', 'was', 'with', 'we', 'i\'ve', 'wa'}
@@ -100,7 +100,7 @@ class IMDBDataSet():
                 stripped_text = []
                 for review in text:
                     tokens = review.split(" ")
-                    if len(tokens)>self.max_len:
+                    if len(tokens) > self.max_len:
                         tokens = tokens[:self.max_len]
 
                     else:
@@ -111,7 +111,7 @@ class IMDBDataSet():
         print(name, len(text))
         i = 0
 
-        if num<0 or num>len(text):
+        if num < 0 or num > len(text):
             num = 100
 
         if is_random:
@@ -163,6 +163,9 @@ class IMDBDataSet():
                 sequences, word_index = self.__tokenize(text)
 
             data, labels = self.__data_to_numpy(sequences, labels)
+
+            #Add code to verify sequences are as the should be!
+
             return data, labels, word_index
 
 
@@ -190,11 +193,9 @@ class IMDBDataSet():
 
     def __tokenize(self, text):
         # tokenize the text data
-        cp_text = text.copy()
-        tokenizer = Tokenizer(num_words=self.max_words)
-        tokenizer.fit_on_texts(text)
-        sequences = tokenizer.texts_to_sequences(text)
-        word_index = tokenizer.word_index
+        self.tokenizer.fit_on_texts(text)
+        sequences = self.tokenizer.texts_to_sequences(text)
+        word_index = self.tokenizer.word_index
         print('Found %s unique tokens.' % len(word_index))
         return sequences, word_index
 
