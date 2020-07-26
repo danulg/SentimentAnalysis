@@ -6,7 +6,7 @@ from basicnn import SentimentAnalysisMultipleConv1D as MultipleConv1D
 
 
 class TrainNetworks():
-    def __init__(self, tr_dt, tr_lbl, val_dt, val_lbl, unsup, weights):
+    def __init__(self, tr_dt, tr_lbl, val_dt, val_lbl, weights):
         super().__init__()
         # set class variables
         self.tr_dt = tr_dt
@@ -15,13 +15,11 @@ class TrainNetworks():
         self.val_lbl = val_lbl
         self.val_lbl = val_lbl
         self.glove_weights = weights
-        self.unlabled = unsup
 
-    def train(self, name='basic', data='labled_only', rate=0.5, lstm_output_size=512, lstm_output_size2=512,
-              dense_output_size=128, sub_epochs=4, iterates=2, batch_size=32, optimizer='adam',\
+    def train(self, name='basic', rate=0.5, lstm_output_size=512, lstm_output_size2=512,
+              dense_output_size=128, epochs=12, batch_size=32, optimizer='adam',\
               loss='binary_crossentropy', metrics=['acc'], verbose=1, cutoff=0.8):
 
-        epochs = sub_epochs * iterates
         if name == 'basic':
             model = Basic(rate=rate, dense_output_size=dense_output_size)
 
@@ -60,36 +58,43 @@ class TrainNetworks():
 
         model.compile(optimizer=optimizer, loss=loss, metrics=metrics)
 
-        if data == 'labled_only':
-            save_name = str(cutoff) + '_' + name + '_model_' + str(sub_epochs) + '_' + str(iterates) + '_' + str(
-                dense_output_size) + '_' + str(rate) + '_'\
-                        + str(lstm_output_size) + '_' + str(lstm_output_size2) +'.h5'
-            history = model.fit(self.tr_dt, self.tr_lbl, epochs=epochs, batch_size=batch_size,
-                                validation_data=(self.val_dt, self.val_lbl), verbose=verbose)
-            model.save_weights(save_name)
-            return history.history, model
+        save_name = str(cutoff) + '_' + name + '_model_' + str(epochs) + '_' + str(
+            dense_output_size) + '_' + str(rate) + '_' + str(lstm_output_size) + '_' + str(lstm_output_size2) + '.h5'
+        history = model.fit(self.tr_dt, self.tr_lbl, epochs=epochs, batch_size=batch_size,
+                            validation_data=(self.val_dt, self.val_lbl), verbose=verbose)
+        model.save_weights(save_name)
+        return history.history, model
 
-        elif data == 'unlabled_considered':
-            i = 0
-            history = []
-            save_name = str(cutoff) + '_' + name + '_itermodel_' + str(sub_epochs) + '_' + str(iterates) + '_' + str(
-                dense_output_size) + str(rate) + \
-                        '_' + str(lstm_output_size) + '_' + str(lstm_output_size2) + '.h5'
-            while (i < iterates):
-                print("iteration cycle:", i + 1)
-                temp = model.fit(self.tr_dt, self.tr_lbl, batch_size=batch_size, epochs=sub_epochs, validation_data=(self.val_dt, self.val_lbl),
-                                 verbose=verbose)
-                history.append(temp.history)
-                self.__add_remove(model, cutoff)
-                print('The number of training examples for iterate ' + str(i) + ' is:', len(self.tr_dt))
-                print('The number of unlabled examples left:', len(self.unlabled))
-                i += 1
+        # if data == 'labled_only':
+        #     save_name = str(cutoff) + '_' + name + '_model_' + str(sub_epochs) + '_' + str(iterates) + '_' + str(
+        #         dense_output_size) + '_' + str(rate) + '_'\
+        #                 + str(lstm_output_size) + '_' + str(lstm_output_size2) +'.h5'
+        #     history = model.fit(self.tr_dt, self.tr_lbl, epochs=epochs, batch_size=batch_size,
+        #                         validation_data=(self.val_dt, self.val_lbl), verbose=verbose)
+        #     model.save_weights(save_name)
+        #     return history.history, model
+
+        # elif data == 'unlabled_considered':
+        #     i = 0
+        #     history = []
+        #     save_name = str(cutoff) + '_' + name + '_itermodel_' + str(sub_epochs) + '_' + str(iterates) + '_' + str(
+        #         dense_output_size) + str(rate) + \
+        #                 '_' + str(lstm_output_size) + '_' + str(lstm_output_size2) + '.h5'
+        #     while (i < iterates):
+        #         print("iteration cycle:", i + 1)
+        #         temp = model.fit(self.tr_dt, self.tr_lbl, batch_size=batch_size, epochs=sub_epochs, validation_data=(self.val_dt, self.val_lbl),
+        #                          verbose=verbose)
+        #         history.append(temp.history)
+        #         self.__add_remove(model, cutoff)
+        #         print('The number of training examples for iterate ' + str(i) + ' is:', len(self.tr_dt))
+        #         print('The number of unlabled examples left:', len(self.unlabled))
+        #         i += 1
 
             # Code for saving the model: Cannot load models this way: known tensorflow error
             # model.save(save_name)
 
-            model.save_weights(save_name)
-            return history, model
+            # model.save_weights(save_name)
+            # return history, model
 
     def __add_remove(self, model, cutoff):
         predicitons = model.predict(self.unlabled)

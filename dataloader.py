@@ -102,9 +102,9 @@ class IMDBDataSet():
                     tokens = review.split(" ")
                     if len(tokens) > self.max_len:
                         tokens = tokens[:self.max_len]
-
                     else:
                         pass
+
                     tokens_truncated = (" ").join(tokens)
                     stripped_text.append(tokens_truncated)
 
@@ -129,7 +129,6 @@ class IMDBDataSet():
                 if name == 'unsup':
                     print(text[i], ': unlabled')
                     i += 1
-
                 else:
                     print(text[i], ':', labels[i])
                     i += 1
