@@ -148,7 +148,7 @@ class IMDBDataSet():
     def load_data(self, name='train', is_numpy=True, stopwords=True):
         #Format data based on return type, strip punctuation
         text, labels = self.__load_from_source(name=name)
-
+        labels_cp = labels.copy()
 
         if is_numpy:
             if stopwords:
@@ -164,7 +164,12 @@ class IMDBDataSet():
 
             data, labels = self.__data_to_numpy(sequences, labels)
 
-            #Add code to verify sequences are as the should be!
+            # Add code to verify sequences are as the should be!
+            # data_1, labels_cp = self.__data_to_numpy(sequences, labels_cp, shuffle=False)
+            # data_1 = self.tokenizer.sequences_to_texts(data_1[:100])
+            #
+            # for x, y in zip(data_1, labels_cp[:100]):
+            #     print(x, y)
 
             return data, labels, word_index
 
@@ -174,12 +179,12 @@ class IMDBDataSet():
             return text, labels, word_index
 
 
-    def __data_to_numpy(self, sequences, labels=[]):
+    def __data_to_numpy(self, sequences, labels=[], shuffle=True):
         #Convert to numpy
         data = pad_sequences(sequences, maxlen=self.max_len)
         print('Shape of data tensor:', data.shape)
 
-        if labels != []:
+        if labels != [] and shuffle:
             labels = np.asarray(labels)
             # print('Shape of label tensor:', labels.shape)
             indices = np.arange(data.shape[0])
@@ -203,7 +208,8 @@ if __name__ == "__main__":
     data = IMDBDataSet()
 
     #Verify encoding methods does what it is supposed
-    data.read_review(num=100, is_random=False, restricted=True)
+    #data.read_review(num=100, is_random=False, restricted=True)
+    data.load_data()
 
 
 
