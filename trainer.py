@@ -65,8 +65,7 @@ class TrainNetworks():
                 dense_output_size) + '_' + str(rate) + '_'\
                         + str(lstm_output_size) + '_' + str(lstm_output_size2) +'.h5'
             history = model.fit(self.tr_dt, self.tr_lbl, epochs=epochs, batch_size=batch_size,
-                                validation_data=(self.val_dt, \
-                                                 self.val_lbl), verbose=verbose)
+                                validation_data=(self.val_dt, self.val_lbl), verbose=verbose)
             model.save_weights(save_name)
             return history.history, model
 
@@ -78,8 +77,8 @@ class TrainNetworks():
                         '_' + str(lstm_output_size) + '_' + str(lstm_output_size2) + '.h5'
             while (i < iterates):
                 print("iteration cycle:", i + 1)
-                temp = model.fit(self.tr_dt, self.tr_lbl, batch_size=batch_size, epochs=sub_epochs, \
-                                 validation_data=(self.val_dt, self.val_lbl), verbose=verbose)
+                temp = model.fit(self.tr_dt, self.tr_lbl, batch_size=batch_size, epochs=sub_epochs, validation_data=(self.val_dt, self.val_lbl),
+                                 verbose=verbose)
                 history.append(temp.history)
                 self.__add_remove(model, cutoff)
                 print('The number of training examples for iterate ' + str(i) + ' is:', len(self.tr_dt))

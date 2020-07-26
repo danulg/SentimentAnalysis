@@ -34,8 +34,8 @@ print(logical[0])
 
 # Various relavant parameters across the classes
 # Shared by all classes Data Loader, Glove, Network Architectures
-maxlen = 200
-max_words = 30000
+max_len = 200
+max_words = 20000
 embedding_dim = 100
 
 # Specific to Convolutional archtecture of SingleConv1D
