@@ -9,7 +9,7 @@ import spacy
 
 
 class IMDBDataSet():
-    def __init__(self):
+    def __init__(self,  max_len=200, max_words=20000):
         super().__init__()
         self.amazing_sub = {'amazing', 'awesome', 'stunning', 'astounding'}
         self.amazingly_sub = {'amazingly', 'stunningly', 'astoundlingly'}
@@ -17,7 +17,11 @@ class IMDBDataSet():
         self.great_sub = {'great', 'really nice'}
         self.imdb_dir = './IMDB'
         self.nlp = spacy.load('en_core_web_sm')
-        self.stopwords = self.nlp.Defaults.stop_words
+        self.max_words = max_words
+        self.max_len = max_len
+        self.stopwords = {'a', 'and', 'for', 'of', 'that', 'it', 'are', 'i', 'am', 'on', 'this', 'the', 'try',
+                          'to', 'in', 'an', 'these', 'his', 'her', 'in', 'if', 'as', 'he', 'she', 'me', 'i.e.', 'i\'ll',
+                          'e.g.', 'at', 'e', 'g', 'my', 'i\'m', 'was', 'with', 'we', 'i\'ve', 'wa'}
 
     #Data augmentation methods
     def data_augmentation(self):
@@ -54,24 +58,56 @@ class IMDBDataSet():
 
 
     #Method for stripping punctuation etc
-    def __punc_strip(self, x, strip_br=True, lower=True, rem_punc=True):
-        if lower:
-            x = x.lower()
-
-        if strip_br:
-            x = re.sub(r'\<br', '', x)
-            x = re.sub(r'\/br\>', '', x)
+    def __strip(self, x, strip_tags=True, rem_punc=True):
+        if strip_tags:
+            x = re.sub(r'\<br', ' ', x)
+            x = re.sub(r'\/br\>', ' ', x)
+            x = re.sub(r'\/\>', ' ', x)
 
         if rem_punc:
-            x = re.sub(r'\/\>', '', x)
-            x = re.sub(r'[,.()?\']', '', x)
-            x.strip()
+            x = re.sub(r'[!;,.()?-]', ' ', x)
+
+
         return x
 
     #Methods for looking at random data
-    def read_review(self, name='train', num=10, is_random=True):
+    def read_review(self, name='train', num=10, is_random=True, original=False, restricted=False):
         text, labels = self.__load_from_source(name=name)
-        text = [self.__punc_strip(x, lower=False) for x in text]
+
+        if original:
+            text = [self.__strip(x, rem_punc=False) for x in text]
+
+        else:
+            text = [x.lower() for x in text]
+            text = self.__remove_stopwords(text)
+            text = [self.__strip(x) for x in text]
+            text = self.__remove_stopwords(text)
+
+            if restricted:
+                _, word_index = self.__tokenize(text)
+                word_index = list(word_index.items())
+                word_index = word_index[:self.max_words]
+                word_index = [x[0] for x in word_index]
+                self.stopwords = set(word_index)
+                stripped_text = []
+                for review in text:
+                    tokens = review.split(" ")
+                    tokens_filtered = [word for word in tokens if word in self.stopwords]
+                    tokens_filtered = (" ").join(tokens_filtered)
+                    stripped_text.append(tokens_filtered)
+
+                text = stripped_text
+                stripped_text = []
+                for review in text:
+                    tokens = review.split(" ")
+                    if len(tokens)>self.max_len:
+                        tokens = tokens[:self.max_len]
+
+                    else:
+                        pass
+                    tokens_truncated = (" ").join(tokens)
+                    stripped_text.append(tokens_truncated)
+
         print(name, len(text))
         i = 0
 
@@ -109,48 +145,53 @@ class IMDBDataSet():
 
         return stripped_text
 
-    def load_data(self, name='train', is_numpy=True, has_stopwords=True, maxlen=200, max_words=30000):
+    def load_data(self, name='train', is_numpy=True, stopwords=True):
         #Format data based on return type, strip punctuation
         text, labels = self.__load_from_source(name=name)
-        text = [self.__punc_strip(x) for x in text]
+
 
         if is_numpy:
-            if not has_stopwords:
-                sequences, word_index = self.__tokenize(text, max_words=max_words)
+            if stopwords:
+                text = [x.lower() for x in text]
+                text = self.__remove_stopwords(text)
+                text = [self.__strip(x) for x in text]
+                text = self.__remove_stopwords(text)
+                sequences, word_index = self.__tokenize(text)
 
             else:
-                text = self.__remove_stopwords(text)
-                sequences, word_index = self.__tokenize(text, max_words=max_words)
+                text = [self.__strip(x) for x in text]
+                sequences, word_index = self.__tokenize(text)
 
-            data, labels = self.__data_to_numpy(sequences, labels, maxlen)
+            data, labels = self.__data_to_numpy(sequences, labels)
             return data, labels, word_index
 
 
         else:
-            _, word_index = self.__tokenize(text, max_words=max_words)
+            _, word_index = self.__tokenize(text)
             return text, labels, word_index
 
 
-    def __data_to_numpy(self, sequences, labels=[], maxlen=100):
+    def __data_to_numpy(self, sequences, labels=[]):
         #Convert to numpy
-        data = pad_sequences(sequences, maxlen=maxlen)
+        data = pad_sequences(sequences, maxlen=self.max_len)
         print('Shape of data tensor:', data.shape)
 
         if labels != []:
             labels = np.asarray(labels)
-            print('Shape of label tensor:', labels.shape)
+            # print('Shape of label tensor:', labels.shape)
             indices = np.arange(data.shape[0])
             np.random.shuffle(indices)
-            data = data[indices]
-            labels = labels[indices]
-            return data, labels
+            data_sh = data[indices]
+            labels_sh = labels[indices]
+            return data_sh, labels_sh
 
         else:
             return data, labels
 
-    def __tokenize(self, text, max_words=10000):
+    def __tokenize(self, text):
         # tokenize the text data
-        tokenizer = Tokenizer(num_words=max_words)
+        cp_text = text.copy()
+        tokenizer = Tokenizer(num_words=self.max_words)
         tokenizer.fit_on_texts(text)
         sequences = tokenizer.texts_to_sequences(text)
         word_index = tokenizer.word_index
@@ -159,7 +200,9 @@ class IMDBDataSet():
 
 if __name__ == "__main__":
     data = IMDBDataSet()
-    data.read_review(num=100)
+
+    #Verify encoding methods does what it is supposed
+    data.read_review(num=100, is_random=False, restricted=True)
 
 
 
