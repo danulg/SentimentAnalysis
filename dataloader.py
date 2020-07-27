@@ -28,6 +28,18 @@ class IMDBDataSet():
         #To be added
         pass
 
+    def __name_extractor(self, text):
+        people = []
+        for _ in text:
+            entry = self.nlp(_)
+            temp = []
+            for ent in entry.ents:
+                if ent.label_ == 'ORG' or ent.label_ == 'PERSON':
+                    people.append(ent.text)
+                    temp.append(ent.text)
+        return people
+
+
     def __load_from_source(self, name='train'):
         labels = []
         text = []
@@ -71,7 +83,7 @@ class IMDBDataSet():
         return x
 
     #Methods for looking at random data
-    def read_review(self, name='train', num=10, is_random=True, original=False, restricted=False):
+    def read_review(self, name='train', num=10, is_random=True, original=False, restricted=False, names=False):
         text, labels = self.__load_from_source(name=name)
 
         if original:
@@ -79,34 +91,33 @@ class IMDBDataSet():
 
         else:
             text = [x.lower() for x in text]
-            text = self.__remove_stopwords(text)
+            text = self.__remove_stopwords(text, self.stopwords)
             text = [self.__strip(x) for x in text]
-            text = self.__remove_stopwords(text)
+            text = self.__remove_stopwords(text, self.stopwords)
 
             if restricted:
                 _, word_index = self.__tokenize(text)
                 word_index = list(word_index.items())
                 word_index = word_index[:self.max_words]
                 word_index = [x[0] for x in word_index]
-                self.stopwords = set(word_index)
-                stripped_text = []
-                for review in text:
-                    tokens = review.split(" ")
-                    tokens_filtered = [word for word in tokens if word in self.stopwords]
-                    tokens_filtered = (" ").join(tokens_filtered)
-                    stripped_text.append(tokens_filtered)
+                set_word_index = set(word_index)
+                print(set_word_index)
+                text = self.__remove_stopwords(text, set_word_index, non_invert=False)
 
-                text = stripped_text
+                if names:
+                    people = self.__name_extractor(text)
+                    text = self.__remove_stopwords(text, people, non_invert=False)
+                    text = [self.__strip(x) for x in text]
+
                 stripped_text = []
                 for review in text:
                     tokens = review.split(" ")
                     if len(tokens) > self.max_len:
                         tokens = tokens[:self.max_len]
-                    else:
-                        pass
-
                     tokens_truncated = (" ").join(tokens)
                     stripped_text.append(tokens_truncated)
+
+                text = stripped_text
 
         print(name, len(text))
         i = 0
@@ -134,27 +145,38 @@ class IMDBDataSet():
                     i += 1
 
 
-    def __remove_stopwords(self, text):
+    def __remove_stopwords(self, text, word_list, non_invert=True):
         stripped_text = []
         for review in text:
             tokens = review.split(" ")
-            tokens_filtered = [word for word in tokens if not word in self.stopwords]
+            if non_invert:
+                tokens_filtered = [word for word in tokens if not word in word_list]
+
+            else:
+                tokens_filtered = [word for word in tokens if word in word_list]
             tokens_filtered = (" ").join(tokens_filtered)
             stripped_text.append(tokens_filtered)
 
         return stripped_text
 
-    def load_data(self, name='train', is_numpy=True, stopwords=True):
+    def load_data(self, name='train', is_numpy=True, stopwords=True, names=False):
+
         #Format data based on return type, strip punctuation
         text, labels = self.__load_from_source(name=name)
-        labels_cp = labels.copy()
+
 
         if is_numpy:
             if stopwords:
                 text = [x.lower() for x in text]
-                text = self.__remove_stopwords(text)
+                text = self.__remove_stopwords(text, self.stopwords)
                 text = [self.__strip(x) for x in text]
-                text = self.__remove_stopwords(text)
+                text = self.__remove_stopwords(text, self.stopwords)
+
+                if names:
+                    people = self.__name_extractor(text)
+                    text = self.__remove_stopwords(text, people)
+                    text = [self.__strip(x) for x in text]
+
                 sequences, word_index = self.__tokenize(text)
 
             else:
@@ -163,7 +185,7 @@ class IMDBDataSet():
 
             data, labels = self.__data_to_numpy(sequences, labels)
 
-            # Add code to verify sequences are as the should be!
+            # Verify sequences are as the should be!
             # data_1, labels_cp = self.__data_to_numpy(sequences, labels_cp, shuffle=False)
             # data_1 = self.tokenizer.sequences_to_texts(data_1[:100])
             #
@@ -206,9 +228,9 @@ class IMDBDataSet():
 if __name__ == "__main__":
     data = IMDBDataSet()
 
-    #Verify encoding methods does what it is supposed
-    #data.read_review(num=100, is_random=False, restricted=True)
-    data.load_data()
+    # Verify encoding methods does what it is supposed
+    data.read_review(num=100, is_random=False, restricted=True)
+    # data.load_data()
 
 
 
