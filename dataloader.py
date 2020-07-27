@@ -5,6 +5,8 @@ import numpy as np
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 import spacy
+import dill
+import json
 
 
 class IMDBDataSet():
@@ -101,12 +103,11 @@ class IMDBDataSet():
                 word_index = word_index[:self.max_words]
                 word_index = [x[0] for x in word_index]
                 set_word_index = set(word_index)
-                print(set_word_index)
                 text = self.__remove_stopwords(text, set_word_index, non_invert=False)
 
                 if names:
                     people = self.__name_extractor(text)
-                    text = self.__remove_stopwords(text, people, non_invert=False)
+                    text = self.__remove_stopwords(text, people)
                     text = [self.__strip(x) for x in text]
 
                 stripped_text = []
@@ -159,7 +160,7 @@ class IMDBDataSet():
 
         return stripped_text
 
-    def load_data(self, name='train', is_numpy=True, stopwords=True, names=False):
+    def load_data(self, name='train', is_numpy=True, stopwords=True, names=False, save=False):
 
         #Format data based on return type, strip punctuation
         text, labels = self.__load_from_source(name=name)
@@ -177,11 +178,11 @@ class IMDBDataSet():
                     text = self.__remove_stopwords(text, people)
                     text = [self.__strip(x) for x in text]
 
-                sequences, word_index = self.__tokenize(text)
+                sequences, word_index = self.__tokenize(text, save=save)
 
             else:
                 text = [self.__strip(x) for x in text]
-                sequences, word_index = self.__tokenize(text)
+                sequences, word_index = self.__tokenize(text, save=save)
 
             data, labels = self.__data_to_numpy(sequences, labels)
 
@@ -217,12 +218,17 @@ class IMDBDataSet():
         else:
             return data, labels
 
-    def __tokenize(self, text):
+    def __tokenize(self, text, save=False):
         # tokenize the text data
         self.tokenizer.fit_on_texts(text)
         sequences = self.tokenizer.texts_to_sequences(text)
         word_index = self.tokenizer.word_index
         print('Found %s unique tokens.' % len(word_index))
+        if save:
+            # dill.dump(self.tokenizer, open('tokenizer.dill', 'wb'))
+            tokenizer_json = self.tokenizer.to_json()
+            with open('tokenizer.json', 'w', encoding='utf-8') as f:
+                f.write(json.dumps(tokenizer_json, ensure_ascii=False))
         return sequences, word_index
 
 if __name__ == "__main__":
@@ -230,6 +236,7 @@ if __name__ == "__main__":
 
     # Verify encoding methods does what it is supposed
     data.read_review(num=100, is_random=False, restricted=True)
+
     # data.load_data()
 
 
