@@ -68,20 +68,18 @@ weights = temp.load_glove(max_words=max_words)
 mod_trainer = TrainNetworks(tr_dt, tr_lbl, val_dt, val_lbl, weights)
 
 # Train neural network architecture: Basic
-history, model = mod_trainer.train(name='basic', epochs=epochs, rate=rate,
-                                   dense_output_size=dense_output_size, cutoff=cutoff)
-glove_history, glove_model = mod_trainer.train(name='glove_basic', epochs=epochs, dense_output_size=dense_output_size,
-                                               rate=rate, cutoff=cutoff)
-# iter_history, iter_model = mod_trainer.train(name='basic', data='unlabled_considered', sub_epochs=sub_epochs, iterates=iterates,
-#                                              rate=rate, dense_output_size=dense_output_size, cutoff=cutoff)
+# history, model = mod_trainer.train(name='basic', epochs=epochs, rate=rate,
+#                                    dense_output_size=dense_output_size, cutoff=cutoff)
+# glove_history, glove_model = mod_trainer.train(name='glove_basic', epochs=epochs, dense_output_size=dense_output_size,
+#                                                rate=rate, cutoff=cutoff)
+
 
 
 
 # Train neural network architecture: bidirectional. Rate is currently redundant as it has no dropout
-# history, model = mod_trainer.train(name='bidirectional', sub_epochs=sub_epochs, iterates=iterates, rate=rate)
-# glove_history, glove_model = mod_trainer.train(name='glove_bidirectional', sub_epochs=sub_epochs, iterates=iterates, rate=rate)
-# iter_history, iter_model = mod_trainer.train(name='bidirectional', data='unlabled_considered', sub_epochs=sub_epochs,
-#                                                        iterates=iterates, rate=rate, cutoff=cutoff)
+history, model = mod_trainer.train(name='bidirectional', epochs=epochs, rate=rate)
+glove_history, glove_model = mod_trainer.train(name='glove_bidirectional', epochs=epochs, rate=rate)
+
 
 
 # Gather histories and save
