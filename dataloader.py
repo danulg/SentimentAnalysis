@@ -10,7 +10,7 @@ import json
 
 
 class IMDBDataSet():
-    def __init__(self,  max_len=200, max_words=20000):
+    def __init__(self, max_len=200, max_words=20000):
         super().__init__()
         self.amazing_sub = {'amazing', 'awesome', 'stunning', 'astounding'}
         self.amazingly_sub = {'amazingly', 'stunningly', 'astoundlingly'}
@@ -21,16 +21,16 @@ class IMDBDataSet():
         self.max_words = max_words
         self.max_len = max_len
         self.tokenizer = Tokenizer(num_words=self.max_words)
-        self.stopwords = {'a', 'and', 'for', 'of', 'that', 'it', 'are', 'i', 'am', 'on', 'this', 'the', 'try',
+        self.stopwords = {'a', 'and', 'for', 'of', 'that', 'are', 'i', 'am', 'on', 'this', 'the', 'try', 'it',
                           'to', 'in', 'an', 'these', 'his', 'her', 'in', 'if', 'as', 'he', 'she', 'me', 'i.e.', 'i\'ll',
                           'e.g.', 'at', 'e', 'g', 'my', 'i\'m', 'was', 'with', 'we', 'i\'ve', 'wa'}
 
-    #Data augmentation methods
+    # Data augmentation methods
     def data_augmentation(self):
-        #To be added
+        # To be added
         pass
 
-    #Method for extracting names using spaCy. Computationally expensive. Values should be saved for further use.
+    # Method for extracting names using spaCy. Computationally expensive. Values should be saved for further use.
     def __name_extractor(self, text):
         people = []
         for _ in text:
@@ -42,7 +42,7 @@ class IMDBDataSet():
                     temp.append(ent.text)
         return people
 
-    #Load data from source files.
+    # Load data from source files.
     def __load_from_source(self, name='train'):
         labels = []
         text = []
@@ -70,7 +70,7 @@ class IMDBDataSet():
 
             return text, labels
 
-    #Method for stripping punctuation etc
+    # Method for stripping punctuation etc
     def __strip(self, x, strip_tags=True, rem_punc=True):
         if strip_tags:
             x = re.sub(r'\<br', ' ', x)
@@ -78,12 +78,12 @@ class IMDBDataSet():
             x = re.sub(r'\/\>', ' ', x)
 
         if rem_punc:
-            x = re.sub(r'[!;,.()?-]', ' ', x)
+            x = re.sub(r'[!;:,.()?-]', ' ', x)
 
         return x
 
-    #Methods for looking at reviews / random reviews, before / after formatting
-    def read_review(self, name='train', num=10, is_random=True, original=False, stopwords=False, names=False):
+    # Methods for looking at reviews / random reviews, before / after formatting
+    def reviews(self, name='train', num=10, is_random=True, original=False, input_view=False):
         text, labels = self.__load_from_source(name=name)
 
         if original:
@@ -92,19 +92,15 @@ class IMDBDataSet():
         else:
             text = self.__text_formatting(text)
 
-            if stopwords:
+            if input_view:
+                #This should be with a fixed tokenizer
+                
                 _, word_index = self.__tokenize(text)
                 word_index = list(word_index.items())
                 word_index = word_index[:self.max_words]
                 word_index = [x[0] for x in word_index]
                 set_word_index = set(word_index)
                 text = self.__remove_stopwords(text, set_word_index, non_invert=False)
-
-                if names:
-                    people = self.__name_extractor(text)
-                    dill.dump(people, open('list_of_names.pkd', 'wb'))
-                    text = self.__remove_stopwords(text, people)
-                    text = [self.__strip(x) for x in text]
 
                 stripped_text = []
                 for review in text:
@@ -123,17 +119,17 @@ class IMDBDataSet():
             num = 100
 
         if is_random:
-            while(i<num):
+            while (i < num):
                 j = random.randint(0, len(text) - 1)
                 if name == 'unsup':
                     print(text[j], ': unlabled')
-                    i+=1
+                    i += 1
                 else:
                     print(text[j], ':', labels[j])
-                    i+=1
+                    i += 1
 
         else:
-            while(i<num):
+            while (i < num):
                 if name == 'unsup':
                     print(text[i], ': unlabled')
                     i += 1
@@ -147,26 +143,22 @@ class IMDBDataSet():
         for review in text:
             tokens = review.split(" ")
             if non_invert:
-                tokens_filtered = [word for word in tokens if not word in word_list]
+                tokens_filtered = [word for word in tokens if not (word in word_list)]
 
             else:
                 tokens_filtered = [word for word in tokens if word in word_list]
+
             tokens_filtered = (" ").join(tokens_filtered)
             stripped_text.append(tokens_filtered)
 
         return stripped_text
 
     # Format text
-    def __text_formatting(self, text, names=False, save=False):
+    def __text_formatting(self, text, save=False):
         text = [x.lower() for x in text]
         text = self.__remove_stopwords(text, self.stopwords)
         text = [self.__strip(x) for x in text]
         text = self.__remove_stopwords(text, self.stopwords)
-
-        if names:
-            people = dill.load(open('list_of_names.pkd', 'rb'))
-            text = self.__remove_stopwords(text, people)
-            text = [self.__strip(x) for x in text]
 
         if save:
             dill.dump(text, open('saved_text.pkd', 'wb'))
@@ -174,43 +166,37 @@ class IMDBDataSet():
         return text
 
     # Method for loading data
-    def load_data(self, name='train', is_numpy=True, names=False, save=False):
+    def load_data(self, name='train', names=False, save=False):
         text, labels = self.__load_from_source(name=name)
-        text = self.__text_formatting(text, names=names, save=save)
-        labels_cp = labels.copy()
+        text = self.__text_formatting(text, save=save)
+        # labels_cp = labels.copy()
 
         sequences, word_index = self.__tokenize(text, save=save)
         data, labels = self.__data_to_numpy(sequences, labels)
 
         # Verify sequences are as the should be!
-        data_1, labels_cp = self.__data_to_numpy(sequences, labels_cp, shuffle=False)
-        data_1 = self.tokenizer.sequences_to_texts(data_1[:100])
-
-        for x, y in zip(data_1, labels_cp[:100]):
-            print(x, y)
+        # data_1, labels_cp = self.__data_to_numpy(sequences, labels_cp, shuffle=False)
+        # data_1 = self.tokenizer.sequences_to_texts(data_1[:100])
+        #
+        # for x, y in zip(data_1, labels_cp[:100]):
+        #     print(x, y)
 
         return data, labels, word_index
 
-
-
-
     # Convert data to numpy: shuffle the labled data
-    def __data_to_numpy(self, sequences, labels=[], shuffle=True):
-        #Convert to numpy
+    def __data_to_numpy(self, sequences, labels=[]):
         data = pad_sequences(sequences, maxlen=self.max_len)
         print('Shape of data tensor:', data.shape)
 
-        if labels != [] and shuffle:
-            labels = np.asarray(labels)
-            # print('Shape of label tensor:', labels.shape)
-            indices = np.arange(data.shape[0])
-            np.random.shuffle(indices)
-            data_sh = data[indices]
-            labels_sh = labels[indices]
-            return data_sh, labels_sh
+        indices = np.arange(data.shape[0])
+        np.random.shuffle(indices)
+        data = data[indices]
 
-        else:
-            return data, labels
+        if labels != []:
+            labels = np.asarray(labels)
+            labels = labels[indices]
+
+        return data, labels
 
     # Creat tokens
     def __tokenize(self, text, save=False):
@@ -220,7 +206,7 @@ class IMDBDataSet():
         word_index = self.tokenizer.word_index
         print('Found %s unique tokens.' % len(word_index))
         if save:
-            # dill.dump(self.tokenizer, open('tokenizer.dill', 'wb'))
+            dill.dump(self.tokenizer, open('tokenizer.pkd', 'wb'))
             tokenizer_json = self.tokenizer.to_json()
             with open('tokenizer.json', 'w', encoding='utf-8') as f:
                 f.write(json.dumps(tokenizer_json, ensure_ascii=False))
@@ -230,10 +216,8 @@ if __name__ == "__main__":
     data = IMDBDataSet()
 
     # Verify encoding methods does what it is supposed
-    data.read_review(num=100, is_random=False, stopwords=True)
-    data.load_data()
+    # data.read_review(num=100, is_random=False, input_view=True)
+    # data.load_data()
 
     # Create and save tokenizer on unsupervised data for training of GloVe
-    # data.load_data(name='unsup', save=True)
-
-
+    data.load_data(name='unsup', save=True)
