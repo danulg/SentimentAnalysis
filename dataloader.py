@@ -23,24 +23,12 @@ class IMDBDataSet():
         self.tokenizer = Tokenizer(num_words=self.max_words)
         self.stopwords = {'a', 'and', 'for', 'of', 'that', 'are', 'i', 'am', 'on', 'this', 'the', 'try', 'it',
                           'to', 'in', 'an', 'these', 'his', 'her', 'in', 'if', 'as', 'he', 'she', 'me', 'i.e.', 'i\'ll',
-                          'e.g.', 'at', 'e', 'g', 'my', 'i\'m', 'was', 'with', 'we', 'i\'ve', 'wa'}
+                          'e.g.', 'at', 'e', 'g', 'my', 'i\'m', 'was', 'with', 'we', 'i\'ve', 'wa', 'you'}
 
     # Data augmentation methods
     def data_augmentation(self):
         # To be added
         pass
-
-    # Method for extracting names using spaCy. Computationally expensive. Values should be saved for further use.
-    def __name_extractor(self, text):
-        people = []
-        for _ in text:
-            entry = self.nlp(_)
-            temp = []
-            for ent in entry.ents:
-                if ent.label_ == 'ORG' or ent.label_ == 'PERSON':
-                    people.append(ent.text)
-                    temp.append(ent.text)
-        return people
 
     # Load data from source files.
     def __load_from_source(self, name='train'):
@@ -83,7 +71,7 @@ class IMDBDataSet():
         return x
 
     # Methods for looking at reviews / random reviews, before / after formatting
-    def reviews(self, name='train', num=10, is_random=True, original=False, input_view=False):
+    def reviews(self, name='train', num=10, is_random=True, original=False, input_view=True):
         text, labels = self.__load_from_source(name=name)
 
         if original:
@@ -93,9 +81,8 @@ class IMDBDataSet():
             text = self.__text_formatting(text)
 
             if input_view:
-                #This should be with a fixed tokenizer
-                
-                _, word_index = self.__tokenize(text)
+                tokenizer = dill.load(open('tokenizer.pkd', 'rb'))
+                word_index = tokenizer.word_index
                 word_index = list(word_index.items())
                 word_index = word_index[:self.max_words]
                 word_index = [x[0] for x in word_index]
@@ -113,13 +100,11 @@ class IMDBDataSet():
                 text = stripped_text
 
         print(name, len(text))
+
         i = 0
 
-        if num < 0 or num > len(text):
-            num = 100
-
         if is_random:
-            while (i < num):
+            while i < num:
                 j = random.randint(0, len(text) - 1)
                 if name == 'unsup':
                     print(text[j], ': unlabled')
@@ -129,7 +114,7 @@ class IMDBDataSet():
                     i += 1
 
         else:
-            while (i < num):
+            while i < num:
                 if name == 'unsup':
                     print(text[i], ': unlabled')
                     i += 1
@@ -148,7 +133,7 @@ class IMDBDataSet():
             else:
                 tokens_filtered = [word for word in tokens if word in word_list]
 
-            tokens_filtered = (" ").join(tokens_filtered)
+            tokens_filtered = " ".join(tokens_filtered)
             stripped_text.append(tokens_filtered)
 
         return stripped_text
@@ -166,58 +151,66 @@ class IMDBDataSet():
         return text
 
     # Method for loading data
-    def load_data(self, name='train', names=False, save=False):
+    def load_data(self, name='train', new_tokens=False, verify=False):
         text, labels = self.__load_from_source(name=name)
-        text = self.__text_formatting(text, save=save)
-        # labels_cp = labels.copy()
+        text = self.__text_formatting(text)
+        labels_cp = labels.copy()
 
-        sequences, word_index = self.__tokenize(text, save=save)
-        data, labels = self.__data_to_numpy(sequences, labels)
+        if new_tokens:
+            sequences, word_index = self.__new_tokens(text)
 
-        # Verify sequences are as the should be!
-        # data_1, labels_cp = self.__data_to_numpy(sequences, labels_cp, shuffle=False)
-        # data_1 = self.tokenizer.sequences_to_texts(data_1[:100])
-        #
-        # for x, y in zip(data_1, labels_cp[:100]):
-        #     print(x, y)
+        else:
+            tokenizer = dill.load(open('tokenizer.pkd', 'rb'))
+            word_index = tokenizer.word_index
+            sequences = tokenizer.texts_to_sequences(text)
 
-        return data, labels, word_index
+            # Verify sequences are as the should be!
+            if verify:
+                data_1, labels_cp = self.__data_to_numpy(sequences, labels_cp, shuffle=False)
+                data_1 = tokenizer.sequences_to_texts(data_1[:100])
+
+                for x, y in zip(data_1, labels_cp[:100]):
+                    print(x, y)
+
+        encoded, labels = self.__data_to_numpy(sequences, labels)
+
+        return encoded, labels, word_index
 
     # Convert data to numpy: shuffle the labled data
-    def __data_to_numpy(self, sequences, labels=[]):
-        data = pad_sequences(sequences, maxlen=self.max_len)
-        print('Shape of data tensor:', data.shape)
+    def __data_to_numpy(self, sequences, labels=[], shuffle=True):
+        padded = pad_sequences(sequences, maxlen=self.max_len)
+        print('Shape of data tensor:', padded.shape)
 
-        indices = np.arange(data.shape[0])
-        np.random.shuffle(indices)
-        data = data[indices]
+        if shuffle:
+            indices = np.arange(padded.shape[0])
+            np.random.shuffle(indices)
+            padded = padded[indices]
 
-        if labels != []:
-            labels = np.asarray(labels)
-            labels = labels[indices]
+            if labels != []:
+                labels = np.asarray(labels)
+                labels = labels[indices]
 
-        return data, labels
+        return padded, labels
 
     # Creat tokens
-    def __tokenize(self, text, save=False):
+    def __new_tokens(self, text):
         # tokenize the text data
         self.tokenizer.fit_on_texts(text)
         sequences = self.tokenizer.texts_to_sequences(text)
         word_index = self.tokenizer.word_index
         print('Found %s unique tokens.' % len(word_index))
-        if save:
-            dill.dump(self.tokenizer, open('tokenizer.pkd', 'wb'))
-            tokenizer_json = self.tokenizer.to_json()
-            with open('tokenizer.json', 'w', encoding='utf-8') as f:
-                f.write(json.dumps(tokenizer_json, ensure_ascii=False))
+        dill.dump(self.tokenizer, open('tokenizer.pkd', 'wb'))
+        tokenizer_json = self.tokenizer.to_json()
+        with open('tokenizer.json', 'w', encoding='utf-8') as f:
+            f.write(json.dumps(tokenizer_json, ensure_ascii=False))
         return sequences, word_index
 
 if __name__ == "__main__":
     data = IMDBDataSet()
 
-    # Verify encoding methods does what it is supposed
-    # data.read_review(num=100, is_random=False, input_view=True)
-    # data.load_data()
+    # Create and save tokenizer on unsupervised data.
+    # data.load_data(name='unsup', new_tokens=True)
 
-    # Create and save tokenizer on unsupervised data for training of GloVe
-    data.load_data(name='unsup', save=True)
+    #View reviews and verify conversion porcess
+    data.reviews(name='train', num=100, is_random=False)
+    data.load_data(verify=True)
