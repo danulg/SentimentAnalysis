@@ -71,7 +71,7 @@ class IMDBDataSet():
         return x
 
     # Methods for looking at reviews / random reviews, before / after formatting
-    def reviews(self, name='train', num=10, is_random=True, original=False, input_view=True):
+    def reviews(self, name='train', num=10, is_random=True, original=False, input_view=True, ret_val=False):
         text, labels = self.__load_from_source(name=name)
 
         if original:
@@ -99,28 +99,32 @@ class IMDBDataSet():
 
                 text = stripped_text
 
-        print(name, len(text))
-
-        i = 0
-
-        if is_random:
-            while i < num:
-                j = random.randint(0, len(text) - 1)
-                if name == 'unsup':
-                    print(text[j], ': unlabled')
-                    i += 1
-                else:
-                    print(text[j], ':', labels[j])
-                    i += 1
+        if ret_val:
+            return text, labels
 
         else:
-            while i < num:
-                if name == 'unsup':
-                    print(text[i], ': unlabled')
-                    i += 1
-                else:
-                    print(text[i], ':', labels[i])
-                    i += 1
+            print(name, len(text))
+
+            i = 0
+
+            if is_random:
+                while i < num:
+                    j = random.randint(0, len(text) - 1)
+                    if name == 'unsup':
+                        print(text[j], ': unlabled')
+                        i += 1
+                    else:
+                        print(text[j], ':', labels[j])
+                        i += 1
+
+            else:
+                while i < num:
+                    if name == 'unsup':
+                        print(text[i], ': unlabled')
+                        i += 1
+                    else:
+                        print(text[i], ':', labels[i])
+                        i += 1
 
     # Method for removing unwanted lists of words
     def __remove_stopwords(self, text, word_list, non_invert=True):
