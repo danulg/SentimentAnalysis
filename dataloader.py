@@ -90,12 +90,9 @@ class IMDBDataSet():
             text = [self.__strip(x, rem_punc=False) for x in text]
 
         else:
-            text = [x.lower() for x in text]
-            text = self.__remove_stopwords(text, self.stopwords)
-            text = [self.__strip(x) for x in text]
-            text = self.__remove_stopwords(text, self.stopwords)
+            text = self.__text_formatting(text)
 
-            if restricted:
+            if stopwords:
                 _, word_index = self.__tokenize(text)
                 word_index = list(word_index.items())
                 word_index = word_index[:self.max_words]
@@ -171,34 +168,29 @@ class IMDBDataSet():
             text = self.__remove_stopwords(text, people)
             text = [self.__strip(x) for x in text]
 
+        if save:
+            dill.dump(text, open('saved_text.pkd', 'wb'))
+
         return text
 
     # Method for loading data
-    def load_data(self, name='train', is_numpy=True, stopwords=True, names=False, save=False):
+    def load_data(self, name='train', is_numpy=True, names=False, save=False):
         text, labels = self.__load_from_source(name=name)
+        text = self.__text_formatting(text, names=names, save=save)
+        labels_cp = labels.copy()
 
-        if stopwords:
-            text = self.__text_formatting(text, names=names, save=save)
+        sequences, word_index = self.__tokenize(text, save=save)
+        data, labels = self.__data_to_numpy(sequences, labels)
 
-        else:
-            text = [self.__strip(x) for x in text]
+        # Verify sequences are as the should be!
+        data_1, labels_cp = self.__data_to_numpy(sequences, labels_cp, shuffle=False)
+        data_1 = self.tokenizer.sequences_to_texts(data_1[:100])
 
-        if is_numpy:
-            sequences, word_index = self.__tokenize(text, save=save)
-            data, labels = self.__data_to_numpy(sequences, labels)
+        for x, y in zip(data_1, labels_cp[:100]):
+            print(x, y)
 
-            # Verify sequences are as the should be!
-            # data_1, labels_cp = self.__data_to_numpy(sequences, labels_cp, shuffle=False)
-            # data_1 = self.tokenizer.sequences_to_texts(data_1[:100])
-            #
-            # for x, y in zip(data_1, labels_cp[:100]):
-            #     print(x, y)
+        return data, labels, word_index
 
-            return data, labels, word_index
-
-        else:
-            _, word_index = self.__tokenize(text, save=save)
-            return text, labels, word_index
 
 
 
@@ -239,7 +231,7 @@ if __name__ == "__main__":
 
     # Verify encoding methods does what it is supposed
     data.read_review(num=100, is_random=False, stopwords=True)
-    # data.load_data()
+    data.load_data()
 
     # Create and save tokenizer on unsupervised data for training of GloVe
     # data.load_data(name='unsup', save=True)
