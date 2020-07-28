@@ -23,7 +23,8 @@ class SentimentAnalysisBidirectional(Sequential):  # Should have 1D CNN and drop
         self.add(Embedding(max_words, embedding_dim))
         # Add 2 bidirectional LSTMs
         self.add(LSTM(lstm_output_size, return_sequences=True))
-        # self.add(Bidirectional(LSTM(lstm_output_size2))) # Leads to input dimension error when commented out. Why?
+        self.add(Bidirectional(LSTM(lstm_output_size2)))
+        # Leads to input dimension error when commented out. Why?
         # Add a classifier
         self.add(Flatten())
         self.add(Dense(256, activation='relu'))
