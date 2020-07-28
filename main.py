@@ -1,18 +1,14 @@
 # import and set randomseeds
 import os
-
 os.environ['PYTHONHASHSEED'] = str(12)
 
 import tensorflow as tf
-
 tf.random.set_seed(324)
 
 import random
-
 random.seed(14)
 
 import numpy as np
-
 np.random.seed(15)
 
 # import rest of relavant libraries
@@ -25,8 +21,8 @@ import dill
 # Prep GPU:
 gpus = tf.config.experimental.list_physical_devices('GPU')
 print(gpus)
-tf.config.experimental.set_virtual_device_configuration(gpus[0], [tf.config.experimental.VirtualDeviceConfiguration( \
-    memory_limit=6000)])
+tf.config.experimental.set_virtual_device_configuration(gpus[0],
+                                                        [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=6000)])
 # tf.config.experimental.set_virtual_device_configuration(gpus[0], [tf.config.experimental.VirtualDeviceConfiguration(\
 #       memory_limit=3000)])
 logical = tf.config.experimental.list_logical_devices('GPU')
