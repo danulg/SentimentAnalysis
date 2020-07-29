@@ -9,7 +9,7 @@ class PlotCurves():
     def __init__(self):
         super().__init__()
 
-    def draw(self, model_histories, sub_epochs=5, iterates=2):
+    def draw_basic(self, model_histories, sub_epochs=5, iterates=2):
         # Plot non-iterative training graphs
         dedicated_dict = model_histories[0]
         transfer_dict = model_histories[1]
@@ -79,21 +79,22 @@ class PlotCurves():
 
     def draw_word_cloud(self, name='train'):
         imdb = IMDBDataSet()
-        text, *_ = imdb.load_data(name=name, is_numpy=False)
+        text, _ = imdb.reviews(name=name, ret_val=True)
+        print(text[:100])
 
-        stopwords = set(STOPWORDS)
-        stopwords.update(
-            ["movie", "hi", 'film', 'wa', 'this', 'this movie', 'whole', "the whole", 'thi', 'story', 'ha', 'doe'])
+        # stopwords = {}
+        # stopwords.update(
+        #     ["movie", "hi", 'film', 'wa', 'this', 'this movie', 'whole', "the whole", 'thi', 'story', 'ha', 'doe'])
         text = " ".join(review for review in text)
-        text = text.lower()
+        # text = text.lower()
         # Create and generate a word cloud image:
-        wordcloud = WordCloud(stopwords=stopwords, background_color="white").generate(text)
+        wordcloud = WordCloud(background_color="white").generate(text)
 
         # Display the generated image:
         plt.imshow(wordcloud, interpolation='bilinear')
         plt.axis("off")
         plt.show()
-        pass
+
 
     def draw_bar_chart(self, word):
         pass
@@ -102,7 +103,7 @@ class PlotCurves():
 if __name__=="__main__":
     curves = PlotCurves()
     # curves.bokeh_draw(dill.load(open('history_1.pkd', 'rb')), sub_epochs=4, iterates=2)
-    curves.draw_word_cloud(name='unsup')
+    curves.draw_word_cloud()
 
     #model_histories = dill.load(open('history_bidirectional_4.pkd', 'rb'))
     #curves.bokeh_draw(model_histories, sub_epochs=8, iterates=2)
