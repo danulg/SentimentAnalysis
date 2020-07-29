@@ -1,4 +1,4 @@
-from tensorflow.keras.layers import Dense, LSTM, Input, Embedding, Reshape, Flatten, TimeDistributed
+from tensorflow.keras.layers import Dense, LSTM, Input, Embedding, Reshape, Flatten, TimeDistributed, RepeatVector
 from tensorflow.keras.models import Sequential
 from dataloader import IMDBDataSet
 import tensorflow as tf
@@ -10,13 +10,26 @@ class AutoEncoder(Sequential):
         self.embedding_dim = 100
         self.max_len = 200
         self.lstm_output_size = 100
-        self.inputs = self.add(Input(shape=(None,), dtype="int32"))
         self.embed = self.add(Embedding(self.max_words, self.embedding_dim))
-        self.lstm1 = self.add(LSTM(self.lstm_output_size))
-        self.lstm2 = self.add(LSTM(self.max_len, activation='relu', return_sequences=True))
+        self.lstm1 = self.add(LSTM(self.lstm_output_size, name='lstm1'))
+        # Copies output into higher dimension
+        self.rpt = self.add(RepeatVector(self.max_len))
+        self.lstm2 = self.add(LSTM(self.embedding_dim, return_sequences=True, name='lstm2'))
         self.dense1 = self.add(TimeDistributed(Dense(1)))
 
+        # The input of the LSTM is always is a 3D array of (batch_size, time_steps, seq_len).
+        # The output of the LSTM could be a 2D array or 3D array depending upon the return_sequences argument.
+        # If return_sequence is False, the output is a 2D array of (batch_size, units)
+        # If return_sequence is True, the output is a 3D array of (batch_size, time_steps, units)
 
+        # TimeDistributed layer applies a specific layer such as Dense to every sample it receives as an input.Suppose
+        # the input size is (13, 10, 6).Now, if I need to apply a Dense layer to every slice of shape(10, 6).Then I
+        # would wrap the Dense layer in a TimeDistributed layer.
+        #
+        # model.add(TimeDistributed(Dense(12, input_shape=(10, 6))))
+        #
+        # The output shape of such a layer would be(13, 10, 12). Hence, the operation of the Dense layer was applied to
+        # each temporal slice as mentioned.
 
 
 if __name__ == '__main__':
@@ -37,3 +50,5 @@ if __name__ == '__main__':
     encoder = AutoEncoder()
     encoder.compile(optimizer='adam', loss='mse')
     encoder.summary()
+    encoder.fit(text, text, epochs=50, batch_size=32, verbose=1)
+    encoder.save_weights('autoencoder.h5')
