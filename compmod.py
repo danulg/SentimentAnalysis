@@ -80,15 +80,25 @@ class PlotCurves():
     def draw_word_cloud(self, name='train'):
         imdb = IMDBDataSet()
         text, _ = imdb.reviews(name=name, ret_val=True)
-        print(text[:100])
 
-        # stopwords = {}
+        stopwords = {'is', 'film is', 'movie is', 'film', 'movie', 'or', 'but', 'all', 'from', 'there', 'then', 'also',
+                     'when', 'really', 'before', 'after', 'guy', 'girl', 'who is', 'part', 'such', 'by', 'kid', 'here',
+                     'because', 'their', 'has', 'actually', 'man', 'still', 'any', 'show', 'series', 'however', 'while',
+                     'yet', 'get', 'work', 'which', 'had', 'make', 'where', 'take', 'is not', 'isnt', 'who is',
+                     'just', 'only', 'looking', 'having', 'very', 'would', 'have', 'not', 'so', 'is one', 'could',
+                     'maybe', 'is no', 'again', 'although', 'is one', 'who is', 'two', 'episode', 'character', 'even',
+                     'story is', 'although', 'into', 'like', 'love', 'one', 'think', 'another', 'have', 'been',
+                     'have been', 'him', 'her', 'some', 'way', 'story', 'well', 'book', 'those', 'who', 'who is',
+                     'now look', 'time', 'scene', 'now', 'look', 'life', 'them', 'play', 'actor', 'director', 'being',
+                     'role', 'plot', 'out', 'would', 'would be', 'be', 'acting', 'actress', 'both', 'fact', 'update',
+                     'little', 'end', 'lot', 'most', 'made', 'world', 'should have', 'i thought', 'that', 'the', 'idea',
+                     'say', 'almost', 'so much', 'over', 'day', 'use'}
         # stopwords.update(
         #     ["movie", "hi", 'film', 'wa', 'this', 'this movie', 'whole', "the whole", 'thi', 'story', 'ha', 'doe'])
         text = " ".join(review for review in text)
         # text = text.lower()
-        # Create and generate a word cloud image:
-        wordcloud = WordCloud(background_color="white").generate(text)
+        # Create and generate a word cloud image: How to change scale?
+        wordcloud = WordCloud(stopwords=stopwords, background_color="white").generate(text)
 
         # Display the generated image:
         plt.imshow(wordcloud, interpolation='bilinear')
@@ -107,4 +117,3 @@ if __name__=="__main__":
 
     #model_histories = dill.load(open('history_bidirectional_4.pkd', 'rb'))
     #curves.bokeh_draw(model_histories, sub_epochs=8, iterates=2)
-    pass
