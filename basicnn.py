@@ -15,7 +15,7 @@ class SentimentAnalysisBasic(Sequential):
 
 
 class SentimentAnalysisBidirectional(Sequential):  # Should have 1D CNN and dropout or batchnorm
-    def __init__(self, max_words=20000, embedding_dim=100, rate=0.5, lstm_output_size=512, lstm_output_size2=512,
+    def __init__(self, max_words=20000, embedding_dim=100, rate=0.5, lstm_output_size=100, lstm_output_size2=100,
                  max_len=200):
         super().__init__()
         self.add(Input(shape=(None,), dtype="int32"))
