@@ -21,9 +21,9 @@ class IMDBDataSet():
         self.max_words = max_words
         self.max_len = max_len
         self.tokenizer = Tokenizer(num_words=self.max_words)
-        self.stopwords = {'a', 'and', 'for', 'of', 'that', 'are', 'i', 'am', 'on', 'this', 'the', 'try', 'it',
+        self.stopwords = {'a', 'and', 'for', 'of', 'that', 'are', 'i', 'am', 'on', 'this', 'the', 'try', 'it', 'its', 'it\'s',
                           'to', 'in', 'an', 'these', 'his', 'her', 'in', 'if', 'as', 'he', 'she', 'me', 'i.e.', 'i\'ll',
-                          'e.g.', 'at', 'e', 'g', 'my', 'i\'m', 'was', 'with', 'we', 'i\'ve', 'wa', 'you'}
+                          'e.g.', 'at', 'e', 'g', 'my', 'i\'m', 'was', 'with', 'we', 'i\'ve', 'wa', 'you', 'ha', 'doe'}
 
     # Data augmentation methods
     def data_augmentation(self):
@@ -67,6 +67,7 @@ class IMDBDataSet():
 
         if rem_punc:
             x = re.sub(r'[!;:,.()?-]', ' ', x)
+            x = re.sub(r'[\']', '', x)
 
         return x
 
@@ -213,8 +214,8 @@ if __name__ == "__main__":
     data = IMDBDataSet()
 
     # Create and save tokenizer on unsupervised data.
-    # data.load_data(name='unsup', new_tokens=True)
+    data.load_data(name='unsup', new_tokens=True)
 
     #View reviews and verify conversion porcess
-    data.reviews(name='train', num=100, is_random=False)
+    # data.reviews(name='train', num=100, is_random=False)
     data.load_data(verify=True)

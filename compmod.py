@@ -92,7 +92,9 @@ class PlotCurves():
                      'now look', 'time', 'scene', 'now', 'look', 'life', 'them', 'play', 'actor', 'director', 'being',
                      'role', 'plot', 'out', 'would', 'would be', 'be', 'acting', 'actress', 'both', 'fact', 'update',
                      'little', 'end', 'lot', 'most', 'made', 'world', 'should have', 'i thought', 'that', 'the', 'idea',
-                     'say', 'almost', 'so much', 'over', 'day', 'use'}
+                     'say', 'almost', 'so much', 'over', 'day', 'use', 'though', 'people', 'great', 'since', 'give',
+                     'new', 'more', 'than', 'did', 'set', 'course', 'star', 'family', 'script', 'which', 'real'
+                     }
         # stopwords.update(
         #     ["movie", "hi", 'film', 'wa', 'this', 'this movie', 'whole', "the whole", 'thi', 'story', 'ha', 'doe'])
         text = " ".join(review for review in text)

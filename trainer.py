@@ -57,6 +57,7 @@ class TrainNetworks():
             return 0, 0
 
         model.compile(optimizer=optimizer, loss=loss, metrics=metrics)
+        model.summary()
 
         save_name = str(cutoff) + '_' + name + '_model_' + str(epochs) + '_' + str(
             dense_output_size) + '_' + str(rate) + '_' + str(lstm_output_size) + '_' + str(lstm_output_size2) + '.h5'
