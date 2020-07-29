@@ -1,21 +1,3 @@
-from sklearn import base
-
-from sklearn.neighbors import KNeighborsRegressor
-from sklearn.utils import shuffle
-from sklearn.model_selection import GridSearchCV
-from sklearn.feature_extraction import DictVectorizer
-from sklearn.linear_model import Ridge
-from sklearn.linear_model import LinearRegression
-from sklearn.model_selection import cross_validate
-from sklearn.model_selection import cross_val_score
-
-import numpy as np
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.ensemble import GradientBoostingRegressor
-from sklearn.preprocessing import PolynomialFeatures
-from sklearn.pipeline import make_pipeline
-from sklearn.linear_model import SGDClassifier
-
 import dill
 from sklearn.pipeline import Pipeline
 from sklearn.metrics import accuracy_score
@@ -23,10 +5,6 @@ from sklearn.feature_extraction.text import CountVectorizer
 from dataloader import IMDBDataSet
 from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import MultinomialNB
-
-class Baseline():
-    def __init__(self):
-        super().__init__()
 
 if __name__ == '__main__':
     imdb = IMDBDataSet()
