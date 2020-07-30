@@ -31,13 +31,19 @@ class GloVe:
 
         return embedding_matrix
 
+    def create_corpus(self):
+        pass
+
+    def create_vectors(self):
+        pass
+
 
 class Word2VecTrain:
     def __init__(self):
         self.glove_dir = './IMDB/glove.6B'
         self.embeddings_index = {}
 
-    def create_corpus(self):
+    def create_vectors(self):
         imdb = IMDBDataSet()
         text, _ = imdb.reviews(name='unsup', ret_val=True)
         text = [x.split() for x in text]
