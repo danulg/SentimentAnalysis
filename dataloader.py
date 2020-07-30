@@ -7,6 +7,7 @@ from tensorflow.keras.preprocessing.sequence import pad_sequences
 import spacy
 import dill
 import json
+from gensim.models import Word2Vec
 
 
 class IMDBDataSet():
@@ -156,7 +157,7 @@ class IMDBDataSet():
         return text
 
     # Method for loading data
-    def load_data(self, name='train', new_tokens=False, verify=False):
+    def load_data_default(self, name='train', new_tokens=False, verify=False):
         text, labels = self.__load_from_source(name=name)
         text = self.__text_formatting(text)
         labels_cp = labels.copy()
@@ -181,6 +182,8 @@ class IMDBDataSet():
 
         return encoded, labels, word_index
 
+    def load_data_word2vec(self, name='train', new_tokens=False, verify=False):
+        pass
     # Convert data to numpy: shuffle the labled data
     def __data_to_numpy(self, sequences, labels=[], shuffle=True):
         padded = pad_sequences(sequences, maxlen=self.max_len)

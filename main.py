@@ -14,7 +14,7 @@ np.random.seed(15)
 # import rest of relavant libraries
 from dataloader import IMDBDataSet
 from trainer import TrainNetworks
-from glove import LoadGloVe
+from wordembedding import LoadGloVe
 from compmod import PlotCurves
 import dill
 
@@ -53,13 +53,11 @@ rate = 0.4
 
 # Load and pratition data sets.
 temp = IMDBDataSet()
-tr, lbl, words = temp.load_data(name='train')
+tr, lbl, words = temp.load_data_default(name='train')
 tr_dt = tr[:20000]
 tr_lbl = lbl[:20000]
 val_dt = tr[20000:]
 val_lbl = lbl[20000:]
-# unsup, *_ = temp.load_data(name='unsup')
-# tst_dt, tst_lbl, _ = temp.load_data(name='test')
 
 temp = LoadGloVe(words)
 weights = temp.load_glove(max_words=max_words)
