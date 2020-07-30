@@ -51,10 +51,12 @@ if __name__ == '__main__':
     encoder = AutoEncoder()
     encoder.compile(optimizer='adam', loss='mse')
     encoder.summary()
-    checkpoint_filepath = './checkpoint'
+    checkpoint_filepath = './checkpoints/weights-improvement-{epoch:02d}-{loss:.2f}.hdf5'
     model_checkpoint_callback = ModelCheckpoint(filepath=checkpoint_filepath,
                                                 save_weights_only=True, monitor='loss',
                                                 mode='min', save_best_only=True)
 
     encoder.fit(text, text, epochs=200, batch_size=32, verbose=1,
                 callbacks=[model_checkpoint_callback])
+
+    encoder.save_weights('model_200_epochs')
