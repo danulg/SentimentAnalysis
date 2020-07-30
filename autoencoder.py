@@ -2,6 +2,7 @@ from tensorflow.keras.layers import Dense, LSTM, Input, Embedding, Reshape, Flat
 from tensorflow.keras.models import Sequential
 from dataloader import IMDBDataSet
 import tensorflow as tf
+from tensorflow.keras.callbacks import ModelCheckpoint
 
 class AutoEncoder(Sequential):
     def __init__(self):
@@ -50,5 +51,10 @@ if __name__ == '__main__':
     encoder = AutoEncoder()
     encoder.compile(optimizer='adam', loss='mse')
     encoder.summary()
-    encoder.fit(text, text, epochs=50, batch_size=32, verbose=1)
-    encoder.save_weights('autoencoder.h5')
+    checkpoint_filepath = './checkpoint'
+    model_checkpoint_callback = ModelCheckpoint(filepath=checkpoint_filepath,
+                                                save_weights_only=True, monitor='loss',
+                                                mode='min', save_best_only=True)
+
+    encoder.fit(text, text, epochs=200, batch_size=32, verbose=1,
+                callbacks=[model_checkpoint_callback])
