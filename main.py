@@ -14,7 +14,7 @@ np.random.seed(15)
 # import rest of relavant libraries
 from dataloader import IMDBDataSet
 from trainer import TrainNetworks
-from wordembedding import LoadGloVe
+from wordembedding import GloVe
 from compmod import PlotCurves
 import dill
 
@@ -59,7 +59,7 @@ tr_lbl = lbl[:20000]
 val_dt = tr[20000:]
 val_lbl = lbl[20000:]
 
-temp = LoadGloVe(words)
+temp = GloVe(words)
 weights = temp.load_glove(max_words=max_words)
 
 # # Create model trainer

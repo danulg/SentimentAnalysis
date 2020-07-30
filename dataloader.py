@@ -1,86 +1,34 @@
-import re
 import random
-import os
 import numpy as np
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
-import spacy
 import dill
 import json
 from gensim.models import Word2Vec
+from textprep import TextPrep
 
 
 class IMDBDataSet():
     def __init__(self, max_len=200, max_words=20000):
         super().__init__()
-        self.amazing_sub = {'amazing', 'awesome', 'stunning', 'astounding'}
-        self.amazingly_sub = {'amazingly', 'stunningly', 'astoundlingly'}
-        self.love_sub = {'love', 'adore'}
-        self.great_sub = {'great', 'really nice'}
-        self.imdb_dir = './IMDB'
-        self.nlp = spacy.load('en_core_web_sm')
         self.max_words = max_words
         self.max_len = max_len
+        self.text_prep = TextPrep()
         self.tokenizer = Tokenizer(num_words=self.max_words)
-        self.stopwords = {'a', 'and', 'for', 'of', 'that', 'are', 'i', 'am', 'on', 'this', 'the', 'try', 'it', 'its', 'it\'s',
+        self.stopwords = {'a', 'and', 'for', 'of', 'that', 'are', 'i', 'am', 'on', 'this', 'the', 'try', 'it', 'its',
+                          'it\'s',
                           'to', 'in', 'an', 'these', 'his', 'her', 'in', 'if', 'as', 'he', 'she', 'me', 'i.e.', 'i\'ll',
                           'e.g.', 'at', 'e', 'g', 'my', 'i\'m', 'was', 'with', 'we', 'i\'ve', 'wa', 'you', 'ha', 'doe'}
 
-    # Data augmentation methods
-    def data_augmentation(self):
-        # To be added
-        pass
-
-    # Load data from source files.
-    def __load_from_source(self, name='train'):
-        labels = []
-        text = []
-        dir = os.path.join(self.imdb_dir, name)
-        if name == 'train' or name == 'test':
-            for label_type in ['pos', 'neg']:
-                dir_name = os.path.join(dir, label_type)
-                for fname in os.listdir(dir_name):
-                    with open(os.path.join(dir_name, fname)) as f:
-                        x = f.read()
-                        text.append(x)
-
-                    if label_type == 'neg':
-                        labels.append(0)
-                    else:
-                        labels.append(1)
-
-            return text, labels
-
-        elif name == 'unsup':
-            for fname in os.listdir(dir):
-                with open(os.path.join(dir, fname)) as f:
-                    x = f.read()
-                    text.append(x)
-
-            return text, labels
-
-    # Method for stripping punctuation etc
-    def __strip(self, x, strip_tags=True, rem_punc=True):
-        if strip_tags:
-            x = re.sub(r'\<br', ' ', x)
-            x = re.sub(r'\/br\>', ' ', x)
-            x = re.sub(r'\/\>', ' ', x)
-
-        if rem_punc:
-            x = re.sub(r'[!;:,.()?-]', ' ', x)
-            x = re.sub(r'[\']', '', x)
-
-        return x
-
     # Methods for looking at reviews / random reviews, before / after formatting
     def reviews(self, name='train', num=10, is_random=True, original=False, input_view=True, ret_val=False):
-        text, labels = self.__load_from_source(name=name)
+        text, labels = self.text_prep.load_from_source(name=name)
 
         if original:
-            text = [self.__strip(x, rem_punc=False) for x in text]
+            text = [self.text_prep.strip_punc(x, rem_punc=False) for x in text]
 
         else:
-            text = self.__text_formatting(text)
+            text = self.text_prep.text_formatting(text)
 
             if input_view:
                 tokenizer = dill.load(open('tokenizer.pkd', 'rb'))
@@ -89,7 +37,7 @@ class IMDBDataSet():
                 word_index = word_index[:self.max_words]
                 word_index = [x[0] for x in word_index]
                 set_word_index = set(word_index)
-                text = self.__remove_stopwords(text, set_word_index, non_invert=False)
+                text = self.text_prep.remove_stopwords(text, set_word_index, non_invert=False)
 
                 stripped_text = []
                 for review in text:
@@ -128,38 +76,13 @@ class IMDBDataSet():
                         print(text[i], ':', labels[i])
                         i += 1
 
-    # Method for removing unwanted lists of words
-    def __remove_stopwords(self, text, word_list, non_invert=True):
-        stripped_text = []
-        for review in text:
-            tokens = review.split(" ")
-            if non_invert:
-                tokens_filtered = [word for word in tokens if not (word in word_list)]
 
-            else:
-                tokens_filtered = [word for word in tokens if word in word_list]
 
-            tokens_filtered = " ".join(tokens_filtered)
-            stripped_text.append(tokens_filtered)
-
-        return stripped_text
-
-    # Format text
-    def __text_formatting(self, text, save=False):
-        text = [x.lower() for x in text]
-        text = self.__remove_stopwords(text, self.stopwords)
-        text = [self.__strip(x) for x in text]
-        text = self.__remove_stopwords(text, self.stopwords)
-
-        if save:
-            dill.dump(text, open('saved_text.pkd', 'wb'))
-
-        return text
 
     # Method for loading data
     def load_data_default(self, name='train', new_tokens=False, verify=False):
-        text, labels = self.__load_from_source(name=name)
-        text = self.__text_formatting(text)
+        text, labels = self.text_prep.load_from_source(name=name)
+        text = self.text_prep.text_formatting(text)
         labels_cp = labels.copy()
 
         if new_tokens:
@@ -184,6 +107,7 @@ class IMDBDataSet():
 
     def load_data_word2vec(self, name='train', new_tokens=False, verify=False):
         pass
+
     # Convert data to numpy: shuffle the labled data
     def __data_to_numpy(self, sequences, labels=[], shuffle=True):
         padded = pad_sequences(sequences, maxlen=self.max_len)
@@ -213,12 +137,7 @@ class IMDBDataSet():
             f.write(json.dumps(tokenizer_json, ensure_ascii=False))
         return sequences, word_index
 
+
 if __name__ == "__main__":
     data = IMDBDataSet()
 
-    # Create and save tokenizer on unsupervised data.
-    data.load_data(name='unsup', new_tokens=True)
-
-    #View reviews and verify conversion porcess
-    # data.reviews(name='train', num=100, is_random=False)
-    data.load_data(verify=True)
