@@ -61,17 +61,22 @@ class Word2VecWeights:
 
     def load_word2vec_weights(self, max_words=20000, embedding_dim=100):
         model = Word2Vec.load('model.bin')
-        *_, word_index = self.imdb.load_data_word2vec()
+        *_, word_index = self.imdb.load_data_default()
 
         embedding_matrix = np.zeros((max_words, embedding_dim))
 
         for word, i in word_index.items():
             if i < max_words:
-                embedding_vector = model[word]
-                if embedding_vector is not None:
+                try:
+                    embedding_vector = model[word]
                     embedding_matrix[i] = embedding_vector
 
+                except KeyError:
+                    pass
+
         return embedding_matrix
+
+
 
 if __name__ == '__main__':
     # Check load functionality
@@ -91,5 +96,5 @@ if __name__ == '__main__':
     # print(model)
     # print(model['bad'])
 
-    w2vec = Word2Vec()
+    w2vec = Word2VecWeights()
     w2vec.load_word2vec_weights()
