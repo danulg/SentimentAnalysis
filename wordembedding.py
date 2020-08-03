@@ -39,7 +39,7 @@ class GloVe:
         pass
 
 
-class Word2VecTrain:
+class Word2VecWeights:
     def __init__(self):
         self.glove_dir = './IMDB/glove.6B'
         self.embeddings_index = {}
@@ -91,5 +91,5 @@ if __name__ == '__main__':
     # print(model)
     # print(model['bad'])
 
-    w2vec = Word2VecTrain()
+    w2vec = Word2Vec()
     w2vec.load_word2vec_weights()
