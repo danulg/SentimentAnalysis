@@ -59,13 +59,10 @@ class Word2VecTrain:
         # save model
         model.save('model.bin')
 
-    def load_word2vec_weights(self, embedding_dim=100):
+    def load_word2vec_weights(self, max_words=20000, embedding_dim=100):
         model = Word2Vec.load('model.bin')
         *_, word_index = self.imdb.load_data_word2vec()
 
-        print(word_index)
-
-        max_words = len(list(model.wv.vocab))
         embedding_matrix = np.zeros((max_words, embedding_dim))
 
         for word, i in word_index.items():
@@ -73,8 +70,8 @@ class Word2VecTrain:
                 embedding_vector = model[word]
                 if embedding_vector is not None:
                     embedding_matrix[i] = embedding_vector
-        
 
+        return embedding_matrix
 
 if __name__ == '__main__':
     # Check load functionality
