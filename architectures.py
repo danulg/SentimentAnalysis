@@ -4,7 +4,7 @@ from tensorflow.keras.layers import LSTM, Dense, Conv1D, Flatten, Embedding, Inp
 from tensorflow.keras.models import Sequential, Model
 
 
-class SentimentAnalysisBasic(Sequential):
+class AnalysisBasic(Sequential):
     def __init__(self, rate=0.5, max_words=20000, embedding_dim=100, max_len=200, dense_output_size=128):
         super().__init__()
         self.add(Embedding(max_words, embedding_dim, input_length=max_len))
@@ -15,8 +15,8 @@ class SentimentAnalysisBasic(Sequential):
         self.add(Dense(1, activation='sigmoid'))
 
 
-class SentimentAnalysisBidirectional(Sequential):  # Should have 1D CNN and dropout or batchnorm
-    def __init__(self, max_words=20000, embedding_dim=100, rate=0.5, lstm_output_size=100, lstm_output_size2=100):
+class AnalysisBidirectional(Sequential):  # Should have 1D CNN and dropout or batchnorm
+    def __init__(self, max_words=20000, embedding_dim=100, rate=0.5, lstm_output_size=128, lstm_output_size2=128):
         super().__init__()
         # self.add(Input(shape=(None,), dtype="int32"))
         # Embed each integer in a 100-dimensional vector
@@ -32,7 +32,7 @@ class SentimentAnalysisBidirectional(Sequential):  # Should have 1D CNN and drop
 
 
 class ConvolutionalLSTM(Model):
-    def __init__(self, max_words=20000, embedding_dim=100, lstm_outputsize=400, rate=.5):
+    def __init__(self, max_words=20000, embedding_dim=100, lstm_output_size=128, rate=.5):
         super().__init__()
         self.embedding_layer = Embedding(max_words, embedding_dim)
         self.conv_by1 = Conv1D(filters=32, kernel_size=1, strides=1, padding='same', activation='sigmoid')
@@ -42,11 +42,11 @@ class ConvolutionalLSTM(Model):
         self.conv_by5 = Conv1D(filters=32, kernel_size=5, strides=1, padding='same', activation='sigmoid')
         self.max_pool = MaxPooling1D()
         self.dropout = Dropout(rate=rate)
-        self.lstm_by1 = LSTM(lstm_outputsize)
-        self.conv_by2 = LSTM(lstm_outputsize)
-        self.conv_by3 = LSTM(lstm_outputsize)
-        self.conv_by4 = LSTM(lstm_outputsize)
-        self.conv_by5 = LSTM(lstm_outputsize)
+        self.lstm_by1 = LSTM(lstm_output_size)
+        self.conv_by2 = LSTM(lstm_output_size)
+        self.conv_by3 = LSTM(lstm_output_size)
+        self.conv_by4 = LSTM(lstm_output_size)
+        self.conv_by5 = LSTM(lstm_output_size)
         self.concat = Concatenate()
         self.dense1 = Dense(512, activation='relu')
         self.dense2 = Dense(1, activation='sigmoid')
