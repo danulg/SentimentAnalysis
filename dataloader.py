@@ -105,8 +105,24 @@ class IMDBDataSet():
 
         return encoded, labels, word_index
 
-    def load_data_word2vec(self, name='train', new_tokens=False, verify=False):
-        pass
+    def load_data_word2vec(self, name='train', new_tokens=False):
+        model = Word2Vec.load('model.bin')
+        word_list = list(model.wv.vocab)
+        text, labels = self.reviews(name=name, ret_val=True)
+        text = self.text_prep.remove_stopwords(text, word_list, non_invert=False)
+
+        if new_tokens:
+            sequences, word_index = self.__new_tokens(text, w2vec=True)
+
+        else:
+
+            tokenizer = dill.load(open('w2vec_tokenizer.pkd', 'rb'))
+            word_index = tokenizer.word_index
+            sequences = tokenizer.texts_to_sequences(text)
+
+        encoded, labels = self.__data_to_numpy(sequences, labels)
+
+        return encoded, labels, word_index
 
     # Convert data to numpy: shuffle the labled data
     def __data_to_numpy(self, sequences, labels=[], shuffle=True):
@@ -125,19 +141,27 @@ class IMDBDataSet():
         return padded, labels
 
     # Creat tokens
-    def __new_tokens(self, text):
+    def __new_tokens(self, text, w2vec=False, glove=False):
         # tokenize the text data
+        name = 'tokenizer.pkd'
+        if w2vec:
+            name = 'w2vec_tokenizer.pkd'
+
+        if glove:
+            name = 'glove_tokenizer.pkd'
+
         self.tokenizer.fit_on_texts(text)
         sequences = self.tokenizer.texts_to_sequences(text)
         word_index = self.tokenizer.word_index
         print('Found %s unique tokens.' % len(word_index))
-        dill.dump(self.tokenizer, open('tokenizer.pkd', 'wb'))
-        tokenizer_json = self.tokenizer.to_json()
-        with open('tokenizer.json', 'w', encoding='utf-8') as f:
-            f.write(json.dumps(tokenizer_json, ensure_ascii=False))
+        dill.dump(self.tokenizer, open(name, 'wb'))
+        # tokenizer_json = self.tokenizer.to_json()
+        # with open('tokenizer.json', 'w', encoding='utf-8') as f:
+        #     f.write(json.dumps(tokenizer_json, ensure_ascii=False))
         return sequences, word_index
 
 
 if __name__ == "__main__":
     data = IMDBDataSet()
+    data.load_data_word2vec()
 
