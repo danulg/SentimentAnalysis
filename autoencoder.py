@@ -3,6 +3,14 @@ from tensorflow.keras.models import Sequential
 from dataloader import IMDBDataSet
 import tensorflow as tf
 from tensorflow.keras.callbacks import ModelCheckpoint
+from wordembedding import Word2VecWeights
+
+class Embedder(Sequential):
+    def __init__(self):
+        super().__init__()
+        self.max_words = 20000
+        self.embedding_dim = 100
+        self.embed = self.add(Embedding(self.max_words, self.embedding_dim))
 
 
 class AutoEncoder(Sequential):
@@ -12,7 +20,6 @@ class AutoEncoder(Sequential):
         self.embedding_dim = 100
         self.max_len = 200
         self.lstm_output_size = 512
-        self.embed = self.add(Embedding(self.max_words, self.embedding_dim))
         self.lstm1 = self.add(
             LSTM(self.lstm_output_size, input_shape=(self.max_words, self.embedding_dim), name='lstm1'))
         # Copies output into higher dimension
@@ -36,18 +43,25 @@ class AutoEncoder(Sequential):
 
 
 if __name__ == '__main__':
+    # Load data
     imdb = IMDBDataSet()
     text, *_ = imdb.load_data_default(name='unsup')
-    text = text[:1]
-    print(text)
+
+    # Create embedding layer
+    embedding_layer = Embedder()
+    temp = Word2VecWeights()
+    weights = temp.load_word2vec_weights(max_words=20000)
+    embedding_layer.layers[0].set_weights([weights])
+
+    # Create a pipeline for data
+    data = embedding_layer.predict(text)
+
     # Prep GPU:
     gpus = tf.config.experimental.list_physical_devices('GPU')
     print(gpus)
     tf.config.experimental.set_virtual_device_configuration(gpus[0],
                                                             [tf.config.experimental.VirtualDeviceConfiguration(
                                                                 memory_limit=6000)])
-    # tf.config.experimental.set_virtual_device_configuration(gpus[0], [tf.config.experimental.VirtualDeviceConfiguration(\
-    #       memory_limit=3000)])
     logical = tf.config.experimental.list_logical_devices('GPU')
     print(logical[0])
 
@@ -55,18 +69,12 @@ if __name__ == '__main__':
     encoder = AutoEncoder()
     encoder.compile(optimizer='adam', loss='mse')
     encoder.summary()
-    # encoder.load_weights('weights-improvement-29.hdf5')
     checkpoint_filepath = './checkpoints/weights-improvement-{epoch:02d}-{loss:.2f}.hdf5'
     model_checkpoint_callback = ModelCheckpoint(filepath=checkpoint_filepath,
                                                 save_weights_only=True, monitor='loss',
                                                 mode='min', save_best_only=True)
 
-    encoder.fit(text, text, epochs=1, batch_size=32, verbose=1,
+    encoder.fit(data, data, epochs=100, batch_size=32, verbose=1,
                 callbacks=[model_checkpoint_callback])
     encoder.save_weights('at_200.hd5')
-    # text.shape (1,200) is different from (1,200,1) so either broadcasting or reshaping happens: How does broadcasting work
-    # here? It is the same as reshaping!
-    # print(encoder.predict(text))
-    # print(encoder.predict(text).shape)
-    # print(text)
-    # print(text.shape)
+
