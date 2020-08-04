@@ -65,25 +65,22 @@ mod_trainer = TrainNetworks(tr_dt, tr_lbl, val_dt, val_lbl, glove_weights, w2vec
 
 # The following code trains the models with their default architectures
 # Train neural network architecture: Basic
-history, model = mod_trainer.train(name='basic')
-glove_history, glove_model = mod_trainer.train(name='glove_basic')
-w2vec_history, w2vec_model = mod_trainer.train(name='w2vec_basic', epochs=20)
+history = mod_trainer.train(name='basic')
+glove_history = mod_trainer.train(name='glove_basic')
+w2vec_history = mod_trainer.train(name='w2vec_basic', epochs=20)
 history = [history, glove_history, w2vec_history]
 dill.dump(history, open('history_basic.pkd', 'wb'))
 
 
 # Train neural network architecture: bidirectional. Rate is currently redundant as it has no dropout
-history, model = mod_trainer.train(name='bidirectional', epochs=20)
-glove_history, glove_model = mod_trainer.train(name='glove_bidirectional', epochs=20)
-w2vec_history, w2vec_model = mod_trainer.train(name='w2vec_bidirectional', epochs=20)
+history = mod_trainer.train(name='bidirectional', epochs=20)
+glove_history = mod_trainer.train(name='glove_bidirectional', epochs=20)
+w2vec_history = mod_trainer.train(name='w2vec_bidirectional', epochs=20)
 history = [history, glove_history, w2vec_history]
 dill.dump(history, open('history_bidirectional.pkd', 'wb'))
 
 
-
-
-
 # Draw plots
-# curves = PlotCurves()
-# curves.draw(dill.load(open('history_1.pkd', 'rb')), sub_epochs=sub_epochs, iterates=iterates)
-# curves.bokeh_draw(dill.load(open('history_2.pkd', 'rb')), sub_epochs=sub_epochs, iterates=iterates)
+curves = PlotCurves()
+curves.bokeh_draw(dill.load(open('history_basic.pkd', 'rb')), epochs=epochs, name='basic')
+curves.bokeh_draw(dill.load(open('history_bidirectional.pkd', 'rb')), epochs=epochs, name='basic')

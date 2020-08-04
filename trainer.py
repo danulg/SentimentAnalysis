@@ -67,4 +67,4 @@ class TrainNetworks():
         history = model.fit(self.tr_dt, self.tr_lbl, epochs=epochs, batch_size=batch_size,
                             validation_data=(self.val_dt, self.val_lbl), verbose=verbose)
         model.save_weights(save_name)
-        return history.history, model
+        return history.history
