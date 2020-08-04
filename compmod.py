@@ -34,6 +34,27 @@ class PlotCurves:
         output_file(name)
         show(fig)
 
+    def draw_two(self, model_histories, epochs=60, name='basic'):
+        #Plot non-iterative training graphs
+        transfer_dict = model_histories[0]
+        semi_sup_dict = model_histories[1]
+        epochs_ar = range(1, epochs+1)
+        fig = figure(title='Epochs vs. Accuracy', x_axis_label='Epochs', y_axis_label='Accuracy', plot_width=1200,
+                     plot_height=800)
+
+        # Draw training accuracy
+        fig.circle(epochs_ar, transfer_dict['acc'], size=20, color="green", alpha=0.5, legend_label='Transfer Learning')
+        fig.circle(epochs_ar, semi_sup_dict['acc'], size=20, color="red", alpha=0.5,
+                   legend_label='Semi-supervised Learning')
+        fig.line(epochs_ar, transfer_dict['val_acc'], color='green', legend_label='Transfer: Validation')
+        fig.line(epochs_ar, semi_sup_dict['val_acc'], color='red', legend_label='Semi-supervised: Validation')
+
+
+       # show and save the results
+        name = name + '_'+str(epochs)+'.html'
+        output_file(name)
+        show(fig)
+
     def draw_word_cloud(self, name='train'):
         imdb = IMDBDataSet()
         text, _ = imdb.reviews(name=name, ret_val=True)
@@ -71,8 +92,8 @@ class PlotCurves:
 
 if __name__=="__main__":
     curves = PlotCurves()
+    history = dill.load(open('history_conv_lstm_res.pkd', 'rb'))
+    curves.draw_two(history, epochs=60, name='LSTM_Conv_res')
     # curves.bokeh_draw(dill.load(open('history_1.pkd', 'rb')), sub_epochs=4, iterates=2)
-    curves.draw_word_cloud()
+    # curves.draw_word_cloud()
 
-    #model_histories = dill.load(open('history_bidirectional_4.pkd', 'rb'))
-    #curves.bokeh_draw(model_histories, sub_epochs=8, iterates=2)
