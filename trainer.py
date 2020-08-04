@@ -20,7 +20,7 @@ class TrainNetworks():
         self.metrics = metrics
 
     def train(self, name='basic', rate=0.5, lstm_output_size=128, lstm_output_size2=128, dense_output_size=128,
-              epochs=12, batch_size=32, verbose=1):
+              epochs=10, batch_size=32, verbose=1):
 
         if name == 'basic':
             model = Basic(rate=rate, dense_output_size=dense_output_size)

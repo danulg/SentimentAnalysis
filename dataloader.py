@@ -118,7 +118,7 @@ class IMDBDataSet():
 
         return padded, labels
 
-    # Creat tokens: 
+    # Creat tokens:
     def __new_tokens(self, text):
         # tokenize the text data
         name = 'tokenizer.pkd'

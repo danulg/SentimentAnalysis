@@ -14,7 +14,7 @@ np.random.seed(15)
 # import rest of relavant libraries
 from dataloader import IMDBDataSet
 from trainer import TrainNetworks
-from wordembedding import GloVe
+from wordembedding import GloVe, Word2VecWeights
 from compmod import PlotCurves
 import dill
 
@@ -22,34 +22,29 @@ import dill
 gpus = tf.config.experimental.list_physical_devices('GPU')
 print(gpus)
 tf.config.experimental.set_virtual_device_configuration(gpus[0],
-                                                        [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=6000)])
+                                                [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=6000)])
 # tf.config.experimental.set_virtual_device_configuration(gpus[0], [tf.config.experimental.VirtualDeviceConfiguration(\
 #       memory_limit=3000)])
 logical = tf.config.experimental.list_logical_devices('GPU')
 print(logical[0])
 
-# Various relavant parameters across the classes
-# Shared by all classes Data Loader, Glove, Network Architectures
+# Default word form. Changing these will require the creation of new tokens and tokenizers with new_tokens = True
 max_len = 200
 max_words = 20000
 embedding_dim = 100
 
-# Specific to Convolutional archtecture of SingleConv1D
-filters = 64
-kernel_size = 5
-strides = 2
-pool_size = 4
+# Keyword arguments specific to various architectures. Can be changed by providing the parameters to the
+# TrainNetworks.train()
+filters = 32
+strides = 1
+pool_size = 2
+dense_output_size = 128
+lstm_output_size = 128
+lstm_output_size2 = 128
 
 # Parameters for training
-
-epochs = 25
-cutoff = 0.85
-
-# Model parameters with default sizes
-dense_output_size = 32
-lstm_output_size = 100
-lstm_output_size2 = 100
-rate = 0.4
+epochs = 10
+rate = 0.5
 
 # Load and pratition data sets.
 temp = IMDBDataSet()
@@ -60,30 +55,33 @@ val_dt = tr[20000:]
 val_lbl = lbl[20000:]
 
 temp = GloVe(words)
-weights = temp.load_glove(max_words=max_words)
+glove_weights = temp.load_glove_weights(max_words=max_words, twitter=True)
+
+temp = Word2VecWeights()
+w2vec_weights = temp.load_word2vec_weights(max_words=max_words)
 
 # # Create model trainer
-mod_trainer = TrainNetworks(tr_dt, tr_lbl, val_dt, val_lbl, weights)
+mod_trainer = TrainNetworks(tr_dt, tr_lbl, val_dt, val_lbl, glove_weights, w2vec_weights)
 
+# The following code trains the models with their default architectures
 # Train neural network architecture: Basic
-# history, model = mod_trainer.train(name='basic', epochs=epochs, rate=rate,
-#                                    dense_output_size=dense_output_size, cutoff=cutoff)
-# glove_history, glove_model = mod_trainer.train(name='glove_basic', epochs=epochs, dense_output_size=dense_output_size,
-#                                                rate=rate, cutoff=cutoff)
-
-
+history, model = mod_trainer.train(name='basic')
+glove_history, glove_model = mod_trainer.train(name='glove_basic')
+w2vec_history, w2vec_model = mod_trainer.train(name='w2vec_basic', epochs=20)
+history = [history, glove_history, w2vec_history]
+dill.dump(history, open('history_basic.pkd', 'wb'))
 
 
 # Train neural network architecture: bidirectional. Rate is currently redundant as it has no dropout
-history, model = mod_trainer.train(name='bidirectional', epochs=epochs, rate=rate)
-glove_history, glove_model = mod_trainer.train(name='glove_bidirectional', epochs=epochs, rate=rate)
-history = [history, glove_history]
-dill.dump(history, open('history_10.pkd', 'wb'))
+history, model = mod_trainer.train(name='bidirectional', epochs=20)
+glove_history, glove_model = mod_trainer.train(name='glove_bidirectional', epochs=20)
+w2vec_history, w2vec_model = mod_trainer.train(name='w2vec_bidirectional', epochs=20)
+history = [history, glove_history, w2vec_history]
+dill.dump(history, open('history_bidirectional.pkd', 'wb'))
 
 
-# Gather histories and save
-# history = [history, glove_history, iter_history]
-# dill.dump(history, open('history_2.pkd', 'wb'))
+
+
 
 # Draw plots
 # curves = PlotCurves()

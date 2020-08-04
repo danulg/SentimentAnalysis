@@ -4,6 +4,7 @@ from dataloader import IMDBDataSet
 import tensorflow as tf
 from tensorflow.keras.callbacks import ModelCheckpoint
 
+
 class AutoEncoder(Sequential):
     def __init__(self):
         super().__init__()
@@ -12,7 +13,8 @@ class AutoEncoder(Sequential):
         self.max_len = 200
         self.lstm_output_size = 512
         self.embed = self.add(Embedding(self.max_words, self.embedding_dim))
-        self.lstm1 = self.add(LSTM(self.lstm_output_size, input_shape=(self.max_words, self.embedding_dim), name='lstm1'))
+        self.lstm1 = self.add(
+            LSTM(self.lstm_output_size, input_shape=(self.max_words, self.embedding_dim), name='lstm1'))
         # Copies output into higher dimension
         self.rpt = self.add(RepeatVector(self.max_len))
         self.lstm2 = self.add(LSTM(self.embedding_dim, return_sequences=True, name='lstm2'))
@@ -35,7 +37,7 @@ class AutoEncoder(Sequential):
 
 if __name__ == '__main__':
     imdb = IMDBDataSet()
-    text, *_ = imdb.load_data(name='unsup')
+    text, *_ = imdb.load_data_default(name='unsup')
     text = text[:1]
     print(text)
     # Prep GPU:

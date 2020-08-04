@@ -8,12 +8,16 @@ import dill
 class GloVe:
     def __init__(self, words):
         super().__init__()
-        self.glove_dir = './IMDB/glove.6B'
+        self.glove_dir = './IMDB/glove'
         self.embeddings_index = {}
         self.word_index = words
 
-    def load_glove_weights(self, max_words=20000, embedding_dim=100, name='glove.6B.'):
+    def load_glove_weights(self, max_words=20000, embedding_dim=100, name='glove.6B.', twitter=False):
+        if twitter:
+            name = 'glove.27B.'
+
         file_name = name + str(embedding_dim) + 'd.txt'
+
         with open(os.path.join(self.glove_dir, file_name)) as f:
             for line in f:
                 values = line.split()
