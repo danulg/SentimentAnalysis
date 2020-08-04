@@ -26,7 +26,8 @@ tf.config.experimental.set_virtual_device_configuration(gpus[0],
 logical = tf.config.experimental.list_logical_devices('GPU')
 print(logical[0])
 
-# Default word form. Changing these will require the creation of new tokens and tokenizers with new_tokens = True
+# Default word form. Changing these will require the creation of new tokens and tokenizers with new_tokens = True.  Can
+# be passed onto TrainNetworks.train()
 max_len = 200
 max_words = 20000
 embedding_dim = 100
@@ -44,7 +45,7 @@ lstm_output_size2 = 128
 epochs = 20
 rate = 0.5
 
-# Load and pratition data sets.
+# Load and partition data sets.
 temp = IMDBDataSet()
 tr, lbl, words = temp.load_data_default(name='train')
 tr_dt = tr[:20000]
@@ -77,16 +78,22 @@ mod_trainer = TrainNetworks(tr_dt, tr_lbl, val_dt, val_lbl, glove_weights, w2vec
 # history = [history, glove_history, w2vec_history]
 # dill.dump(history, open('history_bidirectional.pkd', 'wb'))
 
-# Train neural network architecture: ConvLSTM. Rate is currently redundant as it has no dropout
-history = mod_trainer.train(name='conv_lstm', epochs=20, filters=filters, lstm_output_size=lstm_output_size)
-glove_history = mod_trainer.train(name='glove_conv_lstm', epochs=20, filters=filters, lstm_output_size=lstm_output_size)
-w2vec_history = mod_trainer.train(name='w2vec_conv_lstm', epochs=20, filters=filters, lstm_output_size=lstm_output_size)
-history = [history, glove_history, w2vec_history]
-dill.dump(history, open('history_conv_lstm.pkd', 'wb'))
+# Train neural network architecture: ConvLSTM.
+# history = mod_trainer.train(name='conv_lstm', epochs=20, filters=filters, lstm_output_size=lstm_output_size)
+# glove_history = mod_trainer.train(name='glove_conv_lstm', epochs=20, filters=filters, lstm_output_size=lstm_output_size)
+# w2vec_history = mod_trainer.train(name='w2vec_conv_lstm', epochs=20, filters=filters, lstm_output_size=lstm_output_size)
+# history = [history, glove_history, w2vec_history]
+# dill.dump(history, open('history_conv_lstm.pkd', 'wb'))
+
+# Further train neural network architecture: ConvLSTM
+glove_history = mod_trainer.train(name='glove_conv_lstm', epochs=60, filters=filters, lstm_output_size=lstm_output_size)
+w2vec_history = mod_trainer.train(name='w2vec_conv_lstm', epochs=60, filters=filters, lstm_output_size=lstm_output_size)
+history = [glove_history, w2vec_history]
+dill.dump(history, open('history_conv_lstm_res.pkd', 'wb'))
 
 
 # Draw plots
 curves = PlotCurves()
 # curves.draw_comparison(dill.load(open('history_basic.pkd', 'rb')), epochs=epochs, name='basic')
 # curves.draw_comparison(dill.load(open('history_bidirectional.pkd', 'rb')), epochs=epochs, name='bidirectional')
-curves.draw_comparison(dill.load(open('history_conv_lstm.pkd', 'rb')), epochs=epochs, name='conv_lstm')
+# curves.draw_comparison(dill.load(open('history_conv_lstm.pkd', 'rb')), epochs=epochs, name='conv_lstm')
