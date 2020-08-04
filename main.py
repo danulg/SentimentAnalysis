@@ -23,8 +23,6 @@ gpus = tf.config.experimental.list_physical_devices('GPU')
 print(gpus)
 tf.config.experimental.set_virtual_device_configuration(gpus[0],
                                                 [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=6000)])
-# tf.config.experimental.set_virtual_device_configuration(gpus[0], [tf.config.experimental.VirtualDeviceConfiguration(\
-#       memory_limit=3000)])
 logical = tf.config.experimental.list_logical_devices('GPU')
 print(logical[0])
 
@@ -43,7 +41,7 @@ lstm_output_size = 128
 lstm_output_size2 = 128
 
 # Parameters for training
-epochs = 10
+epochs = 20
 rate = 0.5
 
 # Load and pratition data sets.
@@ -65,22 +63,30 @@ mod_trainer = TrainNetworks(tr_dt, tr_lbl, val_dt, val_lbl, glove_weights, w2vec
 
 # The following code trains the models with their default architectures
 # Train neural network architecture: Basic
-history = mod_trainer.train(name='basic')
-glove_history = mod_trainer.train(name='glove_basic')
-w2vec_history = mod_trainer.train(name='w2vec_basic', epochs=20)
-history = [history, glove_history, w2vec_history]
-dill.dump(history, open('history_basic.pkd', 'wb'))
+# history = mod_trainer.train(name='basic', epochs=20)
+# glove_history = mod_trainer.train(name='glove_basic', epochs=20)
+# w2vec_history = mod_trainer.train(name='w2vec_basic', epochs=20)
+# history = [history, glove_history, w2vec_history]
+# dill.dump(history, open('history_basic.pkd', 'wb'))
 
 
-# Train neural network architecture: bidirectional. Rate is currently redundant as it has no dropout
-history = mod_trainer.train(name='bidirectional', epochs=20)
-glove_history = mod_trainer.train(name='glove_bidirectional', epochs=20)
-w2vec_history = mod_trainer.train(name='w2vec_bidirectional', epochs=20)
+# Train neural network architecture: bidirectional.
+# history = mod_trainer.train(name='bidirectional', epochs=20)
+# glove_history = mod_trainer.train(name='glove_bidirectional', epochs=20)
+# w2vec_history = mod_trainer.train(name='w2vec_bidirectional', epochs=20)
+# history = [history, glove_history, w2vec_history]
+# dill.dump(history, open('history_bidirectional.pkd', 'wb'))
+
+# Train neural network architecture: ConvLSTM. Rate is currently redundant as it has no dropout
+history = mod_trainer.train(name='conv_lstm', epochs=20, filters=filters, lstm_output_size=lstm_output_size)
+glove_history = mod_trainer.train(name='glove_conv_lstm', epochs=20, filters=filters, lstm_output_size=lstm_output_size)
+w2vec_history = mod_trainer.train(name='w2vec_conv_lstm', epochs=20, filters=filters, lstm_output_size=lstm_output_size)
 history = [history, glove_history, w2vec_history]
-dill.dump(history, open('history_bidirectional.pkd', 'wb'))
+dill.dump(history, open('history_conv_lstm.pkd', 'wb'))
 
 
 # Draw plots
 curves = PlotCurves()
-curves.draw_comparison(dill.load(open('history_basic.pkd', 'rb')), epochs=epochs, name='basic')
-curves.draw_comparison(dill.load(open('history_bidirectional.pkd', 'rb')), epochs=epochs, name='bidirectional')
+# curves.draw_comparison(dill.load(open('history_basic.pkd', 'rb')), epochs=epochs, name='basic')
+# curves.draw_comparison(dill.load(open('history_bidirectional.pkd', 'rb')), epochs=epochs, name='bidirectional')
+curves.draw_comparison(dill.load(open('history_conv_lstm.pkd', 'rb')), epochs=epochs, name='conv_lstm')

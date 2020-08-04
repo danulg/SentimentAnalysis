@@ -32,14 +32,14 @@ class AnalysisBidirectional(Sequential):  # Should have 1D CNN and dropout or ba
 
 
 class ConvolutionalLSTM(Model):
-    def __init__(self, max_words=20000, embedding_dim=100, lstm_output_size=128, rate=.5):
+    def __init__(self, max_words=20000, embedding_dim=100, lstm_output_size=128, rate=.5, filters=32):
         super().__init__()
         self.embedding_layer = Embedding(max_words, embedding_dim)
-        self.conv_by1 = Conv1D(filters=32, kernel_size=1, strides=1, padding='same', activation='sigmoid')
-        self.conv_by2 = Conv1D(filters=32, kernel_size=2, strides=1, padding='same', activation='sigmoid')
-        self.conv_by3 = Conv1D(filters=32, kernel_size=3, strides=1, padding='same', activation='sigmoid')
-        self.conv_by4 = Conv1D(filters=32, kernel_size=4, strides=1, padding='same', activation='sigmoid')
-        self.conv_by5 = Conv1D(filters=32, kernel_size=5, strides=1, padding='same', activation='sigmoid')
+        self.conv_by1 = Conv1D(filters=filters, kernel_size=1, strides=1, padding='same', activation='sigmoid')
+        self.conv_by2 = Conv1D(filters=filters, kernel_size=2, strides=1, padding='same', activation='sigmoid')
+        self.conv_by3 = Conv1D(filters=filters, kernel_size=3, strides=1, padding='same', activation='sigmoid')
+        self.conv_by4 = Conv1D(filters=filters, kernel_size=4, strides=1, padding='same', activation='sigmoid')
+        self.conv_by5 = Conv1D(filters=filters, kernel_size=5, strides=1, padding='same', activation='sigmoid')
         self.max_pool = MaxPooling1D()
         self.dropout = Dropout(rate=rate)
         self.lstm_by1 = LSTM(lstm_output_size)

@@ -20,7 +20,7 @@ class TrainNetworks():
         self.metrics = metrics
 
     def train(self, name='basic', rate=0.5, lstm_output_size=128, lstm_output_size2=128, dense_output_size=128,
-              epochs=10, batch_size=32, verbose=1):
+              filters=32, epochs=20, batch_size=32, verbose=1):
 
         if name == 'basic':
             model = Basic(rate=rate, dense_output_size=dense_output_size)
@@ -57,6 +57,24 @@ class TrainNetworks():
             save_name = name + '_model_' + str(epochs) + '_' + str(dense_output_size) + '_' + str(rate) + '_' + \
                         str(lstm_output_size) + '_' + str(lstm_output_size2) + '.h5'
 
+        if name == 'conv_lstm':
+            model = ConvLSTM(rate=rate, filters=filters, lstm_output_size=lstm_output_size)
+            save_name = name + '_model_' + str(epochs) + '_' + str(filters) + str(lstm_output_size) + '_' + str(rate) \
+                        + '.h5'
+
+        elif name == 'glove_conv_lstm':
+            model = ConvLSTM(rate=rate,  filters=filters, lstm_output_size=lstm_output_size)
+            model.layers[0].set_weights([self.glove_weights])
+            model.layers[0].trainable = False
+            save_name = name + '_model_' + str(epochs) + '_' + str(filters) + str(lstm_output_size) + '_' + str(rate) \
+                        + '.h5'
+
+        elif name == 'w2vec_conv_lstm':
+            model = ConvLSTM(rate=rate,  filters=filters, lstm_output_size=lstm_output_size)
+            model.layers[0].set_weights([self.w2vec_weights])
+            model.layers[0].trainable = False
+            save_name = name + '_model_' + str(epochs) + '_' + str(filters) + str(lstm_output_size) + '_' + str(rate) \
+                        + '.h5'
         else:
             print("Type of model not identified")
             return 0, 0
