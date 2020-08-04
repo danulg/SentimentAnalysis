@@ -82,5 +82,5 @@ dill.dump(history, open('history_bidirectional.pkd', 'wb'))
 
 # Draw plots
 curves = PlotCurves()
-curves.bokeh_draw(dill.load(open('history_basic.pkd', 'rb')), epochs=epochs, name='basic')
-curves.bokeh_draw(dill.load(open('history_bidirectional.pkd', 'rb')), epochs=epochs, name='basic')
+curves.draw_comparison(dill.load(open('history_basic.pkd', 'rb')), epochs=epochs, name='basic')
+curves.draw_comparison(dill.load(open('history_bidirectional.pkd', 'rb')), epochs=epochs, name='bidirectional')
