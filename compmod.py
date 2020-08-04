@@ -10,38 +10,27 @@ class PlotCurves:
         super().__init__()
 
     #The following code duplicates the functionality of the draw but using bokeh for interactive plots
-    def bokeh_draw(self, model_histories, sub_epochs=5, iterates=2):
+    def draw_comparison(self, model_histories, epochs=20, name='basic'):
         #Plot non-iterative training graphs
         dedicated_dict = model_histories[0]
         transfer_dict = model_histories[1]
-        epochs_ar = range(1, sub_epochs*iterates+1)
-        fig = figure(title='Epochs vs. Accuracy', x_axis_label='Epochs', y_axis_label='Accuracy', plot_width=1200, plot_height=800)
+        semi_sup_dict = model_histories[2]
+        epochs_ar = range(1, epochs+1)
+        fig = figure(title='Epochs vs. Accuracy', x_axis_label='Epochs', y_axis_label='Accuracy', plot_width=1200,
+                     plot_height=800)
 
         # Draw training accuracy
         fig.circle(epochs_ar, dedicated_dict['acc'], size=20, color="blue", alpha=0.5, legend_label='Dedicated')
         fig.circle(epochs_ar, transfer_dict['acc'], size=20, color="green", alpha=0.5, legend_label='Transfer Learning')
+        fig.circle(epochs_ar, semi_sup_dict['acc'], size=20, color="red", alpha=0.5,
+                   legend_label='Semi-supervised Learning')
         fig.line(epochs_ar, dedicated_dict['val_acc'], color='blue', legend_label='Dedicated: Validation')
         fig.line(epochs_ar, transfer_dict['val_acc'], color='green', legend_label='Transfer: Validation')
+        fig.line(epochs_ar, semi_sup_dict['val_acc'], color='red', legend_label='Semi-supervised: Validation')
 
 
-        iter_history = model_histories[2]
-        length = len(iter_history)
-        i = 0
-        while(i<length):
-            iter_dict = iter_history[i]
-            if i==0:
-                fig.circle(range(1, sub_epochs+1), iter_dict['acc'], size=20, color="red", alpha=0.5, legend_label='Iterative')
-                fig.line(range(1, sub_epochs+1), iter_dict['val_acc'], color='red', legend_label='Dedicated: Validation')
-                i+=1
-            else:
-                fig.circle(range(1+sub_epochs*i, 1+sub_epochs*(i+1)), iter_dict['acc'], size=20, color="red", alpha=0.5)
-                fig.line(range(1+sub_epochs*i, 1+sub_epochs*(i+1)), iter_dict['val_acc'], color='red')
-                x = [iter_history[i-1]['val_acc'][sub_epochs-1], iter_dict['val_acc'][0]]
-                fig.line(range(sub_epochs*i, sub_epochs*i+2), x, color='red')
-                i+=1
-
-        # show and save the results
-        name = str(sub_epochs)+'_'+str(iterates)+'.html'
+       # show and save the results
+        name = name + '_'+str(epochs)+'.html'
         output_file(name)
         show(fig)
 
