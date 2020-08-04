@@ -1,7 +1,7 @@
-import numpy as np
 from architectures import AnalysisBasic as Basic
 from architectures import AnalysisBidirectional as Bidirectional
 from architectures import ConvolutionalLSTM as ConvLSTM
+from architectures import Convolutional as Conv
 
 
 class TrainNetworks():
@@ -81,9 +81,29 @@ class TrainNetworks():
             model.layers[0].trainable = False
             save_name = name + '_model_' + str(epochs) + '_' + str(filters) + str(lstm_output_size) + '_' + str(rate) \
                         + '.h5'
+
+        elif name == 'conv':
+            model = Conv(rate=rate, filters=filters)
+            model.build((self.max_words, self.embedding_dim))
+            save_name = name + '_model_' + str(epochs) + '_' + str(filters) + '_' + str(rate) + '.h5'
+
+        elif name == 'glove_conv':
+            model = Conv(rate=rate,  filters=filters)
+            model.build((self.max_words, self.embedding_dim))
+            model.layers[0].set_weights([self.glove_weights])
+            model.layers[0].trainable = False
+            save_name = name + '_model_' + str(epochs) + '_' + str(filters) + '_' + str(rate) + '.h5'
+
+        elif name == 'w2vec_conv':
+            model = Conv(rate=rate,  filters=filters)
+            model.build((self.max_words, self.embedding_dim))
+            model.layers[0].set_weights([self.w2vec_weights])
+            model.layers[0].trainable = False
+            save_name = name + '_model_' + str(epochs) + '_' + str(filters) + '_' + str(rate) + '.h5'
+
         else:
             print("Type of model not identified")
-            return 0, 0
+            return 0
 
         model.compile(optimizer=self.optimizer, loss=self.loss, metrics=self.metrics)
         model.summary()
