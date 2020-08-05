@@ -5,6 +5,7 @@ import tensorflow as tf
 from tensorflow.keras.callbacks import ModelCheckpoint
 from wordembedding import Word2VecWeights
 
+
 class Embedder(Sequential):
     def __init__(self):
         super().__init__()
@@ -21,7 +22,7 @@ class AutoEncoder(Sequential):
         self.max_len = 200
         self.lstm_output_size = 512
         self.lstm1 = self.add(
-            LSTM(self.lstm_output_size, input_shape=(self.max_words, self.embedding_dim), name='lstm1'))
+            LSTM(self.lstm_output_size, input_shape=(self.max_len, self.embedding_dim), name='lstm1'))
         # Copies output into higher dimension
         self.rpt = self.add(RepeatVector(self.max_len))
         self.lstm2 = self.add(LSTM(self.embedding_dim, return_sequences=True, name='lstm2'))
@@ -42,20 +43,14 @@ class AutoEncoder(Sequential):
         # each temporal slice as mentioned.
 
 
+def data_gen(seq, embedding):
+    i = 0
+    while i < len(seq):
+        yield (embedding.predict(seq_text[i]), embedding.predict(seq_text[i]))
+        i += 1
+
+
 if __name__ == '__main__':
-    # Load data
-    imdb = IMDBDataSet()
-    text, *_ = imdb.load_data_default(name='unsup')
-
-    # Create embedding layer
-    embedding_layer = Embedder()
-    temp = Word2VecWeights()
-    weights = temp.load_word2vec_weights(max_words=20000)
-    embedding_layer.layers[0].set_weights([weights])
-
-    # Create a pipeline for data
-    data = embedding_layer.predict(text)
-
     # Prep GPU:
     gpus = tf.config.experimental.list_physical_devices('GPU')
     print(gpus)
@@ -65,16 +60,37 @@ if __name__ == '__main__':
     logical = tf.config.experimental.list_logical_devices('GPU')
     print(logical[0])
 
-    # Bad performance here shows the need for normalization of some sort!
-    encoder = AutoEncoder()
-    encoder.compile(optimizer='adam', loss='mse')
-    encoder.summary()
-    checkpoint_filepath = './checkpoints/weights-improvement-{epoch:02d}-{loss:.2f}.hdf5'
-    model_checkpoint_callback = ModelCheckpoint(filepath=checkpoint_filepath,
-                                                save_weights_only=True, monitor='loss',
-                                                mode='min', save_best_only=True)
+    # Load data
+    imdb = IMDBDataSet()
+    seq_text, *_ = imdb.load_data_default(name='unsup')
 
-    encoder.fit(data, data, epochs=100, batch_size=32, verbose=1,
-                callbacks=[model_checkpoint_callback])
-    encoder.save_weights('at_200.hd5')
+    # Create embedding layer
+    embedding_layer = Embedder()
+    temp = Word2VecWeights()
+    weights = temp.load_word2vec_weights(max_words=20000)
+    embedding_layer.layers[0].set_weights([weights])
 
+
+
+    # Create a pipeline for data. This is required to manage resources.
+
+    # train_ds = data_gen(seq_text, embedding_layer)
+    # for x in train_ds:
+    #     print(x)
+
+
+
+
+    # print(train_ds)
+
+    # encoder = AutoEncoder()
+    # encoder.compile(optimizer='adam', loss='mse')
+    # encoder.summary()
+    # checkpoint_filepath = './checkpoints/weights-improvement-{epoch:02d}-{loss:.2f}.hdf5'
+    # model_checkpoint_callback = ModelCheckpoint(filepath=checkpoint_filepath,
+    #                                             save_weights_only=True, monitor='loss',
+    #                                             mode='min', save_best_only=True)
+    #
+    # encoder.fit(train_ds.batch(32).take(1), epochs=100, batch_size=1, verbose=1,
+    #             callbacks=[model_checkpoint_callback])
+    # encoder.save_weights('at_200.hd5')
