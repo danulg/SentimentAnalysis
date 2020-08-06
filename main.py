@@ -86,17 +86,17 @@ mod_trainer = TrainNetworks(tr_dt, tr_lbl, val_dt, val_lbl, glove_weights, w2vec
 # dill.dump(history, open('history_conv_lstm.pkd', 'wb'))
 
 # Further train neural network architecture: ConvLSTM
-# glove_history = mod_trainer.train(name='glove_conv_lstm', epochs=60, filters=filters, lstm_output_size=lstm_output_size)
-# w2vec_history = mod_trainer.train(name='w2vec_conv_lstm', epochs=60, filters=filters, lstm_output_size=lstm_output_size)
-# history = [glove_history, w2vec_history]
-# dill.dump(history, open('history_conv_lstm_res.pkd', 'wb'))
+glove_history = mod_trainer.train(name='glove_conv_lstm', epochs=100, filters=filters, lstm_output_size=lstm_output_size)
+w2vec_history = mod_trainer.train(name='w2vec_conv_lstm', epochs=100, filters=filters, lstm_output_size=lstm_output_size)
+history = [glove_history, w2vec_history]
+dill.dump(history, open('history_conv_lstm_res_100.pkd', 'wb'))
 
-# Train neural network architecture: Conv.
-history = mod_trainer.train(name='conv', epochs=20, filters=filters)
-glove_history = mod_trainer.train(name='glove_conv', epochs=20, filters=filters)
-w2vec_history = mod_trainer.train(name='w2vec_conv', epochs=20, filters=filters)
-history = [history, glove_history, w2vec_history]
-dill.dump(history, open('history_conv.pkd', 'wb'))
+# Train neural network architecture: Conv. Performs extremely poorly
+# history = mod_trainer.train(name='conv', epochs=20, filters=filters)
+# glove_history = mod_trainer.train(name='glove_conv', epochs=20, filters=filters)
+# w2vec_history = mod_trainer.train(name='w2vec_conv', epochs=20, filters=filters)
+# history = [history, glove_history, w2vec_history]
+# dill.dump(history, open('history_conv.pkd', 'wb'))
 
 
 # Draw plots
@@ -104,4 +104,5 @@ curves = PlotCurves()
 # curves.draw_comparison(dill.load(open('history_basic.pkd', 'rb')), epochs=epochs, name='basic')
 # curves.draw_comparison(dill.load(open('history_bidirectional.pkd', 'rb')), epochs=epochs, name='bidirectional')
 # curves.draw_comparison(dill.load(open('history_conv_lstm.pkd', 'rb')), epochs=epochs, name='conv_lstm')
-curves.draw_comparison(dill.load(open('history_conv.pkd', 'rb')), epochs=epochs, name='conv')
+# curves.draw_two(dill.load(open('history_conv_lstm_res_100.pkd', 'rb')), epochs=100, name='conv_lstm_100')
+# curves.draw_comparison(dill.load(open('history_conv.pkd', 'rb')), epochs=epochs, name='conv')

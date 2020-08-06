@@ -1,6 +1,5 @@
 from tensorflow.keras.layers import LSTM, Dense, Conv1D, Flatten, Embedding, Bidirectional, Dropout, \
     MaxPooling1D, Concatenate
-from tensorflow.keras import Input
 from tensorflow.keras.models import Sequential, Model
 
 

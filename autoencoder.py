@@ -65,10 +65,10 @@ if __name__ == '__main__':
     seq_text, *_ = imdb.load_data_default(name='unsup')
 
     # Create embedding layer
-    embedding_layer = Embedder()
+    embedding = Embedder()
     temp = Word2VecWeights()
     weights = temp.load_word2vec_weights(max_words=20000)
-    embedding_layer.layers[0].set_weights([weights])
+    embedding.layers[0].set_weights([weights])
 
 
 
@@ -78,7 +78,10 @@ if __name__ == '__main__':
     # for x in train_ds:
     #     print(x)
 
+    ds_series = tf.data.Dataset.from_generator(data_gen, output_types=(tf.int32, tf.float32),
+                                               output_shapes=((), (None,)))
 
+    # ds_series = tf.data.Dataset.from_generator(data_gen, output_types=(tf.int32, tf.float32), output_shapes=((), (None,)))
 
 
     # print(train_ds)
@@ -91,6 +94,6 @@ if __name__ == '__main__':
     #                                             save_weights_only=True, monitor='loss',
     #                                             mode='min', save_best_only=True)
     #
-    # encoder.fit(train_ds.batch(32).take(1), epochs=100, batch_size=1, verbose=1,
+    # encoder.fit(embedding.predict(seq_text), embedding.predict(seq_text), epochs=100, batch_size=32, verbose=1,
     #             callbacks=[model_checkpoint_callback])
     # encoder.save_weights('at_200.hd5')

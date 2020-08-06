@@ -92,8 +92,8 @@ class PlotCurves:
 
 if __name__=="__main__":
     curves = PlotCurves()
-    history = dill.load(open('history_conv_lstm_res.pkd', 'rb'))
-    curves.draw_two(history, epochs=60, name='LSTM_Conv_res')
-    # curves.bokeh_draw(dill.load(open('history_1.pkd', 'rb')), sub_epochs=4, iterates=2)
+    # history = dill.load(open('history_conv_lstm_res.pkd', 'rb'))
+    # curves.draw_two(history, epochs=60, name='LSTM_Conv_res')
+    curves.draw_two(dill.load(open('history_conv_lstm_res_100.pkd', 'rb')), epochs=100, name='conv_lstm_100')
     # curves.draw_word_cloud()
 
