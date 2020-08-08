@@ -16,9 +16,9 @@ class IMDBDataSet():
         self.text_prep = TextPrep()
         self.tokenizer = Tokenizer(num_words=self.max_words)
         self.stopwords = {'a', 'and', 'for', 'of', 'that', 'are', 'i', 'am', 'on', 'this', 'the', 'try', 'it', 'its',
-                          'it\'s',
-                          'to', 'in', 'an', 'these', 'his', 'her', 'in', 'if', 'as', 'he', 'she', 'me', 'i.e.', 'i\'ll',
-                          'e.g.', 'at', 'e', 'g', 'my', 'i\'m', 'was', 'with', 'we', 'i\'ve', 'wa', 'you', 'ha', 'doe'}
+                          'it\'s', 'to', 'in', 'an', 'these', 'his', 'her', 'in', 'if', 'as', 'he', 'she', 'me', 'i.e.',
+                          'i\'ll', 'e.g.', 'at', 'e', 'g', 'my', 'i\'m', 'was', 'with', 'we', 'i\'ve', 'wa', 'you',
+                          'ha', 'doe'}
 
     # Methods for looking at reviews / random reviews, before / after formatting
     def reviews(self, name='train', num=10, is_random=True, original=False, input_view=True, ret_val=False):

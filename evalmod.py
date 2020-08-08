@@ -17,6 +17,7 @@ if __name__ == '__main__':
     print(logical[0])
 
     # Load data
+    # Load data
     imdb = IMDBDataSet()
     seq_text, labels, _ = imdb.load_data_default(name='test')
 

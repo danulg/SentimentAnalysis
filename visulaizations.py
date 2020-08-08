@@ -1,4 +1,4 @@
-#Draw images using bokeh on train / test accuracies
+# Handles various visualizations
 from matplotlib import pyplot as plt
 from bokeh.plotting import figure, show, output_file
 import dill
