@@ -15,7 +15,7 @@ np.random.seed(15)
 from dataloader import IMDBDataSet
 from trainer import TrainNetworks
 from wordembedding import GloVe, Word2VecWeights
-from compmod import PlotCurves
+from visulaizations import PlotCurves
 import dill
 
 # Prep GPU:
