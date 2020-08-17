@@ -75,7 +75,7 @@ class PlotCurves:
         #              }
         # stopwords.update(
         #     ["movie", "hi", 'film', 'wa', 'this', 'this movie', 'whole', "the whole", 'thi', 'story', 'ha', 'doe'])
-        text = " ".join(review for review in text)
+        # text = " ".join(review for review in text)
         # text = text.lower()
         # Create and generate a word cloud image: How to change scale?
         # wordcloud = WordCloud(stopwords=stopwords, background_color="white").generate(text)
@@ -92,6 +92,7 @@ class PlotCurves:
         imdb = IMDBDataSet()
         text, _ = imdb.reviews(name=name, ret_val=True)
         name = wtype + '_list.pkd'
+        ttext = " ".join(review for review in text)
         if strip:
             doc = self.nlp(text)
             word_list = {token.lemma_ for token in doc if token.pos_ == wtype}
