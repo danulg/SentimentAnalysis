@@ -75,7 +75,7 @@ class PlotCurves:
         #              }
         # stopwords.update(
         #     ["movie", "hi", 'film', 'wa', 'this', 'this movie', 'whole', "the whole", 'thi', 'story', 'ha', 'doe'])
-        # text = " ".join(review for review in text)
+        text = " ".join(review for review in text)
         # text = text.lower()
         # Create and generate a word cloud image: How to change scale?
         # wordcloud = WordCloud(stopwords=stopwords, background_color="white").generate(text)
@@ -92,10 +92,27 @@ class PlotCurves:
         imdb = IMDBDataSet()
         text, _ = imdb.reviews(name=name, ret_val=True)
         name = wtype + '_list.pkd'
-        ttext = " ".join(review for review in text)
+        text = " ".join(review for review in text)
+
         if strip:
-            doc = self.nlp(text)
-            word_list = {token.lemma_ for token in doc if token.pos_ == wtype}
+            text_split = []
+            i = 0
+            max_len = 1000000
+            entries = len(text)//max_len
+            print(entries)
+            while(i<=entries-1):
+                text_split.append(text[i*max_len:(i+1)*max_len])
+                i+=1
+
+            text_split.append(text[i*max_len:len(text)])
+            word_list = set()
+
+            for sub_string in text_split:
+                doc = self.nlp(sub_string)
+                temp_list = {token.lemma_ for token in doc if token.pos_ == wtype}
+                word_list = word_list.union(temp_list)
+                print(word_list)
+
             dill.dump(word_list, open(name, 'wb'))
 
         else:
@@ -114,7 +131,7 @@ class PlotCurves:
 
 if __name__=="__main__":
     curves = PlotCurves()
-    text = curves.lists(strip=True)
+    # text = curves.extract_list()
     curves.draw_word_cloud(text)
     # history = dill.load(open('history_conv_lstm_res.pkd', 'rb'))
     # curves.draw_two(history, epochs=60, name='LSTM_Conv_res')
