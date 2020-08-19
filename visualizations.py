@@ -6,6 +6,7 @@ from wordcloud import WordCloud
 from dataloader import IMDBDataSet
 import spacy
 from textprep import TextPrep
+from sklearn.feature_extraction.text import CountVectorizer
 
 
 class PlotCurves:
@@ -122,6 +123,9 @@ class PlotCurves:
         print(type(text))
         print(text)
         return text
+
+    def count_based_removal(self, text, mindf=0, maxdf=0.8):
+        pass
 
     def pie_chart(self):
         pass
