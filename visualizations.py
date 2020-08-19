@@ -121,16 +121,20 @@ class PlotCurves:
         text = prep.remove_stopwords(text, word_list, non_invert=True)
         return text
 
+    # Hashing vectorizer would give performance boost but does not have a vocabulary_ attribute.
     def count_based_removal(self, name='train', wtype='VERB', mindf=0, maxdf=100):
         imdb = IMDBDataSet()
         text, _ = imdb.reviews(name=name, ret_val=True)
         counts = CountVectorizer(min_df=mindf, max_df=maxdf)
-        counts.fit(text)
+        counts.fit_transform(text)
         word_list = list(counts.vocabulary_)
+        print(word_list)
+        name = 'words_min_'+str(mindf)+'_max_'+str(maxdf)+'.pkd'
+        dill.dump(word_list, open(name, 'wb'))
         prep = TextPrep()
         text = prep.remove_stopwords(text, word_list, non_invert=True)
         self.draw_word_cloud(text)
-        pass
+
 
     def pie_chart(self):
         pass
