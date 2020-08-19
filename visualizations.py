@@ -118,13 +118,18 @@ class PlotCurves:
             word_list = dill.load(open(name, 'rb'))
 
         prep = TextPrep()
-        print(word_list)
         text = prep.remove_stopwords(text, word_list, non_invert=True)
-        print(type(text))
-        print(text)
         return text
 
-    def count_based_removal(self, text, mindf=0, maxdf=0.8):
+    def count_based_removal(self, name='train', wtype='VERB', mindf=0, maxdf=100):
+        imdb = IMDBDataSet()
+        text, _ = imdb.reviews(name=name, ret_val=True)
+        counts = CountVectorizer(min_df=mindf, max_df=maxdf)
+        counts.fit(text)
+        word_list = list(counts.vocabulary_)
+        prep = TextPrep()
+        text = prep.remove_stopwords(text, word_list, non_invert=True)
+        self.draw_word_cloud(text)
         pass
 
     def pie_chart(self):
@@ -133,8 +138,10 @@ class PlotCurves:
 
 if __name__ == "__main__":
     curves = PlotCurves()
-    text = curves.extract_list(wtype='NOUN', strip=True)
-    curves.draw_word_cloud(text)
+    curves.count_based_removal()
+    # text = curves.extract_list(wtype='NOUN', strip=True)
+    # curves.draw_word_cloud(text)
+
     # history = dill.load(open('history_conv_lstm_res.pkd', 'rb'))
     # curves.draw_two(history, epochs=60, name='LSTM_Conv_res')
     # curves.draw_two(dill.load(open('history_conv_lstm_res_100.pkd', 'rb')), epochs=100, name='conv_lstm_100')
