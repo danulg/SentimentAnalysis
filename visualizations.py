@@ -118,7 +118,7 @@ class PlotCurves:
             word_list = dill.load(open(name, 'rb'))
 
         prep = TextPrep()
-        text = prep.remove_stopwords(text, word_list, non_invert=True)
+        text = prep.remove_stopwords(text, word_list, non_invert=False)
         return text
 
     # Hashing vectorizer would give performance boost but does not have a vocabulary_ attribute.
@@ -132,7 +132,7 @@ class PlotCurves:
         name = 'words_min_'+str(mindf)+'_max_'+str(maxdf)+'.pkd'
         dill.dump(word_list, open(name, 'wb'))
         prep = TextPrep()
-        text = prep.remove_stopwords(text, word_list, non_invert=True)
+        text = prep.remove_stopwords(text, word_list, non_invert=False)
         self.draw_word_cloud(text)
 
 
@@ -143,7 +143,7 @@ class PlotCurves:
 if __name__ == "__main__":
     curves = PlotCurves()
     curves.count_based_removal()
-    # text = curves.extract_list(wtype='NOUN', strip=True)
+    # text = curves.extract_list(wtype='VERB')
     # curves.draw_word_cloud(text)
 
     # history = dill.load(open('history_conv_lstm_res.pkd', 'rb'))
