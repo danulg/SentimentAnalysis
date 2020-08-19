@@ -2,7 +2,8 @@ from architectures import AnalysisBasic as Basic
 from architectures import AnalysisBidirectional as Bidirectional
 from architectures import ConvolutionalLSTM as ConvLSTM
 from architectures import Convolutional as Conv
-
+from datetime import datetime
+import tensorflow.keras as keras
 
 class TrainNetworks():
     def __init__(self, tr_dt, tr_lbl, val_dt, val_lbl, glove_weights, w2vec_weights, optimizer='adam',
@@ -23,7 +24,7 @@ class TrainNetworks():
         self.max_words = max_words
 
     def train(self, name='basic', rate=0.5, lstm_output_size=128, lstm_output_size2=128, dense_output_size=128,
-              filters=32, epochs=20, batch_size=32, verbose=1):
+              filters=32, epochs=20, batch_size=32, verbose=1, record=False):
 
         if name == 'basic':
             model = Basic(rate=rate, dense_output_size=dense_output_size)
@@ -105,9 +106,21 @@ class TrainNetworks():
             print("Type of model not identified")
             return 0
 
+        # Compile model if not already compiled
         model.compile(optimizer=self.optimizer, loss=self.loss, metrics=self.metrics)
         model.summary()
-        history = model.fit(self.tr_dt, self.tr_lbl, epochs=epochs, batch_size=batch_size,
-                            validation_data=(self.val_dt, self.val_lbl), verbose=verbose)
+
+        if record:
+            logdir = "logs/fit/" + datetime.now().strftime("%Y%m%d-%H%M%S")
+            tensorboard_callback = keras.callbacks.TensorBoard(log_dir=logdir)
+            history = model.fit(self.tr_dt, self.tr_lbl, epochs=epochs, batch_size=batch_size,
+                                validation_data=(self.val_dt, self.val_lbl), verbose=verbose,
+                                callbacks=[tensorboard_callback])
+
+        else:
+            history = model.fit(self.tr_dt, self.tr_lbl, epochs=epochs, batch_size=batch_size,
+                                validation_data=(self.val_dt, self.val_lbl), verbose=verbose)
+
+
         model.save_weights(save_name)
         return history.history
