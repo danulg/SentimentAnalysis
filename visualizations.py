@@ -7,18 +7,19 @@ from dataloader import IMDBDataSet
 import spacy
 from textprep import TextPrep
 
+
 class PlotCurves:
     def __init__(self):
         super().__init__()
         self.nlp = spacy.load("en_core_web_sm")
 
-    #The following code duplicates the functionality of the draw but using bokeh for interactive plots
+    # The following code duplicates the functionality of the draw but using bokeh for interactive plots
     def draw_comparison(self, model_histories, epochs=20, name='basic'):
-        #Plot non-iterative training graphs
+        # Plot non-iterative training graphs
         dedicated_dict = model_histories[0]
         transfer_dict = model_histories[1]
         semi_sup_dict = model_histories[2]
-        epochs_ar = range(1, epochs+1)
+        epochs_ar = range(1, epochs + 1)
         fig = figure(title='Epochs vs. Accuracy', x_axis_label='Epochs', y_axis_label='Accuracy', plot_width=1200,
                      plot_height=800)
 
@@ -31,17 +32,16 @@ class PlotCurves:
         fig.line(epochs_ar, transfer_dict['val_acc'], color='green', legend_label='Transfer: Validation')
         fig.line(epochs_ar, semi_sup_dict['val_acc'], color='red', legend_label='Semi-supervised: Validation')
 
-
-       # show and save the results
-        name = name + '_'+str(epochs)+'.html'
+        # show and save the results
+        name = name + '_' + str(epochs) + '.html'
         output_file(name)
         show(fig)
 
     def draw_two(self, model_histories, epochs=60, name='basic'):
-        #Plot non-iterative training graphs
+        # Plot non-iterative training graphs
         transfer_dict = model_histories[0]
         semi_sup_dict = model_histories[1]
-        epochs_ar = range(1, epochs+1)
+        epochs_ar = range(1, epochs + 1)
         fig = figure(title='Epochs vs. Accuracy', x_axis_label='Epochs', y_axis_label='Accuracy', plot_width=1200,
                      plot_height=800)
 
@@ -52,9 +52,8 @@ class PlotCurves:
         fig.line(epochs_ar, transfer_dict['val_acc'], color='green', legend_label='Transfer: Validation')
         fig.line(epochs_ar, semi_sup_dict['val_acc'], color='red', legend_label='Semi-supervised: Validation')
 
-
-       # show and save the results
-        name = name + '_'+str(epochs)+'.html'
+        # show and save the results
+        name = name + '_' + str(epochs) + '.html'
         output_file(name)
         show(fig)
 
@@ -87,24 +86,23 @@ class PlotCurves:
         plt.axis("off")
         plt.show()
 
-
-    def lists(self, name='train', wtype='VERB', strip=False):
+    def extract_list(self, name='train', wtype='VERB', strip=False):
         imdb = IMDBDataSet()
         text, _ = imdb.reviews(name=name, ret_val=True)
         name = wtype + '_list.pkd'
-        text = " ".join(review for review in text)
+        text_ex = " ".join(review for review in text)
 
         if strip:
             text_split = []
             i = 0
             max_len = 1000000
-            entries = len(text)//max_len
+            entries = len(text_ex) // max_len
             print(entries)
-            while(i<=entries-1):
-                text_split.append(text[i*max_len:(i+1)*max_len])
-                i+=1
+            while i <= entries - 1:
+                text_split.append(text_ex[i * max_len:(i + 1) * max_len])
+                i += 1
 
-            text_split.append(text[i*max_len:len(text)])
+            text_split.append(text_ex[i * max_len:len(text)])
             word_list = set()
 
             for sub_string in text_split:
@@ -119,22 +117,21 @@ class PlotCurves:
             word_list = dill.load(open(name, 'rb'))
 
         prep = TextPrep()
-        text = prep.remove_stopwords(text, word_list, non_invert=False)
-
+        print(word_list)
+        text = prep.remove_stopwords(text, word_list, non_invert=True)
+        print(type(text))
+        print(text)
         return text
-
 
     def pie_chart(self):
         pass
 
 
-
-if __name__=="__main__":
+if __name__ == "__main__":
     curves = PlotCurves()
-    # text = curves.extract_list()
+    text = curves.extract_list(wtype='NOUN', strip=True)
     curves.draw_word_cloud(text)
     # history = dill.load(open('history_conv_lstm_res.pkd', 'rb'))
     # curves.draw_two(history, epochs=60, name='LSTM_Conv_res')
     # curves.draw_two(dill.load(open('history_conv_lstm_res_100.pkd', 'rb')), epochs=100, name='conv_lstm_100')
     # curves.draw_word_cloud()
-
