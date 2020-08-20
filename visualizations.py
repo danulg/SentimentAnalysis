@@ -92,7 +92,8 @@ class PlotCurves:
         imdb = IMDBDataSet()
         text, _ = imdb.reviews(name=name, ret_val=True)
         name = wtype + '_list.pkd'
-        ttext = " ".join(review for review in text)
+        text = " ".join(review for review in text)
+
         if strip:
             doc = self.nlp(text)
             word_list = {token.lemma_ for token in doc if token.pos_ == wtype}
@@ -104,13 +105,12 @@ class PlotCurves:
         prep = TextPrep()
         text = prep.remove_stopwords(text, word_list, non_invert=False)
 
+        print(text)
         return text
 
 
     def pie_chart(self):
         pass
-
-
 
 if __name__=="__main__":
     curves = PlotCurves()
