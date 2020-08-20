@@ -142,9 +142,9 @@ class PlotCurves:
 
 if __name__ == "__main__":
     curves = PlotCurves()
-    curves.count_based_removal()
-    # text = curves.extract_list(wtype='VERB')
-    # curves.draw_word_cloud(text)
+    # curves.count_based_removal()
+    text = curves.extract_list(wtype='VERB')
+    curves.draw_word_cloud(text)
 
     # history = dill.load(open('history_conv_lstm_res.pkd', 'rb'))
     # curves.draw_two(history, epochs=60, name='LSTM_Conv_res')
