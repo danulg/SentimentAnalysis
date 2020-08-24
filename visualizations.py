@@ -7,6 +7,8 @@ from dataloader import IMDBDataSet
 import spacy
 from textprep import TextPrep
 from sklearn.feature_extraction.text import CountVectorizer
+from tensorflow.keras.utils import plot_model
+from architectures import AnalysisBasic, AnalysisBidirectional, ConvolutionalLSTM
 
 
 class PlotCurves:
@@ -136,15 +138,33 @@ class PlotCurves:
         self.draw_word_cloud(text)
 
 
-    def pie_chart(self):
-        pass
+    def draw_model(self, name='basic'):
+        if name == 'basic':
+            model = AnalysisBasic()
+            plot_model(model, to_file='basic.png')
+
+        elif name == 'bidirectional':
+            model = AnalysisBidirectional()
+            plot_model(model, to_file='bidirectional.png')
+
+        elif name=='conv_lstm':
+            model = ConvolutionalLSTM()
+            model.build((20000, 100))
+            model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['acc'])
+            model.load_weights('w2vec_conv_lstm_model_100_32128_0.5.h5')
+
+            plot_model(model, to_file='conv.png')
+
 
 
 if __name__ == "__main__":
     curves = PlotCurves()
+    curves.draw_model(name='conv_lstm')
+
+
     # curves.count_based_removal()
-    text = curves.extract_list(wtype='VERB')
-    curves.draw_word_cloud(text)
+    # text = curves.extract_list(wtype='VERB')
+    # curves.draw_word_cloud(text)
 
     # history = dill.load(open('history_conv_lstm_res.pkd', 'rb'))
     # curves.draw_two(history, epochs=60, name='LSTM_Conv_res')
